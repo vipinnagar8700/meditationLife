@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Users Management - Admin Dashboard</title>
+    <title>Settings Management - Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -38,18 +38,81 @@
             color: white;
         }
 
-        .badge-admin {
+        .tab-button {
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-button.active {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-bottom-color: #764ba2;
         }
 
-        .badge-user {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        .tab-button:hover:not(.active) {
+            background-color: #f3f4f6;
         }
 
-        .table-row:hover {
-            background-color: #f9fafb;
-            transform: scale(1.01);
-            transition: all 0.2s ease;
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .settings-card {
+            transition: all 0.3s ease;
+        }
+
+        .settings-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .file-upload-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-upload-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-upload-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            border: 2px dashed #cbd5e0;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-label:hover {
+            border-color: #667eea;
+            background-color: #f7fafc;
         }
     </style>
 </head>
@@ -57,6 +120,7 @@
 <body class="bg-gray-100">
     <!-- Header -->
     <%- include('./layout/header') %>
+
         <div class="flex pt-16">
             <!-- Sidebar Component -->
             <%- include('./layout/sidebar') %>
@@ -64,223 +128,1383 @@
                 <!-- Main Content -->
                 <main class="flex-1 p-6 lg:p-8">
                     <!-- Header Section -->
-                    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
-                        <div>
-                            <h2 class="text-3xl font-bold text-gray-800 mb-2">Setting Management</h2>
-                            <p class="text-gray-600">Manage all users and their permissions</p>
-                        </div>
-                        <button
-                            class="mt-4 md:mt-0 px-6 py-3 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all"
-                            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                            <i class="fas fa-user-plus mr-2"></i>Add New User
-                        </button>
+                    <div class="mb-8">
+                        <h2 class="text-3xl font-bold text-gray-800 mb-2">Settings Management</h2>
+                        <p class="text-gray-600">Configure your application settings and preferences</p>
                     </div>
 
-                    <!-- Stats Cards -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                        <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-purple-500">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-gray-500 text-sm font-medium mb-1">Total Users</p>
-                                    <h3 class="text-2xl font-bold text-gray-800">
-                                        <%= users.length %>
-                                    </h3>
-                                </div>
-                                <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                                    <i class="fas fa-users text-purple-500 text-xl"></i>
-                                </div>
-                            </div>
-                        </div>
+                    <!-- Tabs Navigation -->
+                    <div class="bg-white rounded-xl shadow-md mb-6 overflow-x-auto">
+                        <div class="flex flex-wrap border-b">
 
-                        <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-gray-500 text-sm font-medium mb-1">Admin Users</p>
-                                    <h3 class="text-2xl font-bold text-gray-800">
-                                        <%= users.filter(u=> u.role === 'admin').length %>
-                                    </h3>
-                                </div>
-                                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                                    <i class="fas fa-user-shield text-blue-500 text-xl"></i>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-gray-500 text-sm font-medium mb-1">Regular Users</p>
-                                    <h3 class="text-2xl font-bold text-gray-800">
-                                        <%= users.filter(u=> u.role === 'user').length %>
-                                    </h3>
-                                </div>
-                                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                                    <i class="fas fa-user text-green-500 text-xl"></i>
-                                </div>
-                            </div>
+                            <button class="active tab-button px-6 py-4 font-semibold text-sm focus:outline-none"
+                                data-tab="fcm">
+                                <i class="fas fa-bell mr-2"></i>FCM Settings
+                            </button>
+                            <button class="tab-button px-6 py-4 font-semibold text-sm focus:outline-none"
+                                data-tab="firebase">
+                                <i class="fas fa-fire mr-2"></i>Firebase JSON
+                            </button>
+                            <button class="tab-button px-6 py-4 font-semibold text-sm focus:outline-none"
+                                data-tab="smtp">
+                                <i class="fas fa-envelope mr-2"></i>SMTP Settings
+                            </button>
+                            <button class="tab-button px-6 py-4 font-semibold text-sm focus:outline-none"
+                                data-tab="payment">
+                                <i class="fas fa-credit-card mr-2"></i>Payment Gateway
+                            </button>
+                            <button class="tab-button px-6 py-4 font-semibold text-sm focus:outline-none"
+                                data-tab="apps">
+                                <i class="fas fa-mobile-alt mr-2"></i>App Links
+                            </button>
+                            <button class="tab-button px-6 py-4 font-semibold text-sm focus:outline-none"
+                                data-tab="web">
+                                <i class="fas fa-globe mr-2"></i>Web Settings
+                            </button>
                         </div>
                     </div>
 
-                    <!-- Search and Filter -->
-                    <div class="bg-white rounded-xl shadow-md p-4 mb-6">
-                        <div class="flex flex-col md:flex-row gap-4">
-                            <div class="flex-1">
-                                <div class="relative">
-                                    <i
-                                        class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                                    <input type="text" id="searchInput" placeholder="Search by name or email..."
-                                        class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none">
-                                </div>
-                            </div>
-                            <select
-                                class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none">
-                                <option value="">All Roles</option>
-                                <option value="admin">Admin</option>
-                                <option value="user">User</option>
-                            </select>
-                        </div>
-                    </div>
+                    <!-- Tab Contents -->
+                    <div class="tab-contents">
 
-                    <!-- Users Table -->
-                    <div class="bg-white rounded-xl shadow-md overflow-hidden">
-                        <div class="overflow-x-auto">
-                            <table class="w-full">
-                                <thead class="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
-                                    <tr>
-                                        <th class="px-6 py-4 text-left text-sm font-semibold">#</th>
-                                        <th class="px-6 py-4 text-left text-sm font-semibold">Name</th>
-                                        <th class="px-6 py-4 text-left text-sm font-semibold">Email</th>
-                                        <th class="px-6 py-4 text-left text-sm font-semibold">Role</th>
-                                        <th class="px-6 py-4 text-left text-sm font-semibold">Joined Date</th>
-                                        <th class="px-6 py-4 text-center text-sm font-semibold">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-200">
-                                    <% users.forEach((u, index)=> { %>
-                                        <tr class="table-row">
-                                            <td class="px-6 py-4 text-gray-700 font-medium">
-                                                <%= index + 1 %>
-                                            </td>
-                                            <td class="px-6 py-4">
-                                                <div class="flex items-center space-x-3">
-                                                    <div
-                                                        class="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold">
-                                                        <%= u.name.charAt(0).toUpperCase() %>
-                                                    </div>
-                                                    <span class="font-semibold text-gray-800">
-                                                        <%= u.name %>
-                                                    </span>
+
+                        <!-- FCM Settings Tab -->
+                        <div id="fcm" class="tab-content active">
+                            <div class="bg-white rounded-xl shadow-md p-6 settings-card">
+                                <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                                    <i class="fas fa-bell text-purple-500 mr-3"></i>
+                                    Firebase Cloud Messaging (FCM)
+                                </h3>
+                                <form id="fcmForm">
+                                    <div class="input-group">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">FCM Server
+                                            Key</label>
+                                        <input type="text" id="fcmServerKey"
+                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                            placeholder="Enter FCM Server Key">
+                                    </div>
+                                    <div class="input-group">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">FCM Sender
+                                            ID</label>
+                                        <input type="text" id="fcmSenderId"
+                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                            placeholder="Enter FCM Sender ID">
+                                    </div>
+                                    <div class="input-group">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Enable Push
+                                            Notifications</label>
+                                        <div class="flex items-center">
+                                            <input type="checkbox" id="fcmEnabled"
+                                                class="w-5 h-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500">
+                                            <label for="fcmEnabled" class="ml-2 text-sm text-gray-700">Enable FCM
+                                                notifications</label>
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-end mt-6">
+                                        <button type="submit"
+                                            class="px-6 py-3 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all"
+                                            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                            <i class="fas fa-save mr-2"></i>Save FCM Settings
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Firebase JSON Tab -->
+                        <div id="firebase" class="tab-content">
+                            <div class="bg-white rounded-xl shadow-md p-6 settings-card">
+                                <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                                    <i class="fas fa-fire text-purple-500 mr-3"></i>
+                                    Firebase Service Account JSON
+                                </h3>
+                                <form id="firebaseForm">
+                                    <div class="input-group">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Upload Firebase JSON
+                                            File</label>
+                                        <div class="file-upload-wrapper">
+                                            <input type="file" id="firebaseJson" accept=".json">
+                                            <label for="firebaseJson" class="file-upload-label">
+                                                <i class="fas fa-file-upload text-3xl text-gray-400 mr-3"></i>
+                                                <span class="text-gray-600">Click to upload Firebase service account
+                                                    JSON</span>
+                                            </label>
+                                        </div>
+                                        <p class="text-xs text-gray-500 mt-2">Upload your Firebase service account
+                                            credentials file</p>
+                                    </div>
+                                    <div class="input-group">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Or Paste JSON
+                                            Content</label>
+                                        <textarea id="firebaseJsonContent" rows="10"
+                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none font-mono text-sm"
+                                            placeholder='{"type": "service_account", "project_id": "your-project-id", ...}'></textarea>
+                                    </div>
+                                    <div class="flex justify-end mt-6">
+                                        <button type="submit"
+                                            class="px-6 py-3 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all"
+                                            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                            <i class="fas fa-save mr-2"></i>Save Firebase Config
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- SMTP Settings Tab -->
+                        <div id="smtp" class="tab-content">
+                            <div class="bg-white rounded-xl shadow-md p-6 settings-card">
+                                <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                                    <i class="fas fa-envelope-open-text text-purple-500 mr-3"></i>
+                                    SMTP Configuration
+                                </h3>
+                                <form id="smtpForm">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div class="input-group">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">SMTP
+                                                Host</label>
+                                            <input type="text" id="smtpHost"
+                                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                placeholder="smtp.gmail.com">
+                                        </div>
+                                        <div class="input-group">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">SMTP
+                                                Port</label>
+                                            <input type="number" id="smtpPort"
+                                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                placeholder="587">
+                                        </div>
+                                        <div class="input-group">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">SMTP
+                                                Username</label>
+                                            <input type="text" id="smtpUsername"
+                                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                placeholder="your-email@gmail.com">
+                                        </div>
+                                        <div class="input-group">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">SMTP
+                                                Password</label>
+                                            <input type="password" id="smtpPassword"
+                                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                placeholder="App password">
+                                        </div>
+                                        <div class="input-group">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">From
+                                                Email</label>
+                                            <input type="email" id="smtpFromEmail"
+                                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                placeholder="noreply@example.com">
+                                        </div>
+                                        <div class="input-group">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">From
+                                                Name</label>
+                                            <input type="text" id="smtpFromName"
+                                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                placeholder="Your App Name">
+                                        </div>
+                                        <div class="input-group">
+                                            <label
+                                                class="block text-sm font-medium text-gray-700 mb-2">Encryption</label>
+                                            <select id="smtpEncryption"
+                                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none">
+                                                <option value="tls">TLS</option>
+                                                <option value="ssl">SSL</option>
+                                                <option value="none">None</option>
+                                            </select>
+                                        </div>
+                                        <div class="input-group">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Enable
+                                                SMTP</label>
+                                            <div class="flex items-center mt-2">
+                                                <input type="checkbox" id="smtpEnabled"
+                                                    class="w-5 h-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500">
+                                                <label for="smtpEnabled" class="ml-2 text-sm text-gray-700">Enable email
+                                                    sending</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-end mt-6 space-x-3">
+                                        <button type="button" id="testSmtpBtn"
+                                            class="px-6 py-3 border border-purple-500 text-purple-600 font-semibold rounded-lg hover:bg-purple-50 transition-all">
+                                            <i class="fas fa-paper-plane mr-2"></i>Test Connection
+                                        </button>
+                                        <button type="submit"
+                                            class="px-6 py-3 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all"
+                                            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                            <i class="fas fa-save mr-2"></i>Save SMTP Settings
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Payment Gateway Tab -->
+                        <div id="payment" class="tab-content">
+                            <div class="space-y-6">
+                                <!-- Stripe Settings -->
+                                <div class="bg-white rounded-xl shadow-md p-6 settings-card">
+                                    <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                                        <i class="fab fa-stripe text-purple-500 mr-3"></i>
+                                        Stripe Payment Gateway
+                                    </h3>
+                                    <form id="stripeForm">
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div class="input-group">
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">Publishable
+                                                    Key</label>
+                                                <input type="text" id="stripePublishable"
+                                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                    placeholder="pk_test_...">
+                                            </div>
+                                            <div class="input-group">
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">Secret
+                                                    Key</label>
+                                                <input type="password" id="stripeSecret"
+                                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                    placeholder="sk_test_...">
+                                            </div>
+                                            <div class="input-group">
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">Webhook
+                                                    Secret</label>
+                                                <input type="password" id="stripeWebhook"
+                                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                    placeholder="whsec_...">
+                                            </div>
+                                            <div class="input-group">
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">Enable
+                                                    Stripe</label>
+                                                <div class="flex items-center mt-2">
+                                                    <input type="checkbox" id="stripeEnabled"
+                                                        class="w-5 h-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500">
+                                                    <label for="stripeEnabled" class="ml-2 text-sm text-gray-700">Enable
+                                                        Stripe payments</label>
                                                 </div>
-                                            </td>
-                                            <td class="px-6 py-4 text-gray-600">
-                                                <%= u.email %>
-                                            </td>
-                                            <td class="px-6 py-4">
-                                                <% if (u.role==='admin' ) { %>
-                                                    <span
-                                                        class="badge-admin px-3 py-1 rounded-full text-white text-xs font-semibold">
-                                                        <i class="fas fa-crown mr-1"></i>Admin
-                                                    </span>
-                                                    <% } else { %>
-                                                        <span
-                                                            class="badge-user px-3 py-1 rounded-full text-white text-xs font-semibold">
-                                                            <i class="fas fa-user mr-1"></i>User
-                                                        </span>
-                                                        <% } %>
-                                            </td>
-                                            <td class="px-6 py-4 text-gray-600">
-                                                <%= new Date(u.createdAt).toLocaleDateString('en-US', { year: 'numeric'
-                                                    , month: 'short' , day: 'numeric' }) %>
-                                            </td>
-                                            <td class="px-6 py-4">
-                                                <div class="flex items-center justify-center space-x-2">
-                                                    <button
-                                                        class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
-                                                        title="View">
-                                                        <i class="fas fa-eye"></i>
-                                                    </button>
-                                                    <button
-                                                        class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-all"
-                                                        title="Edit">
-                                                        <i class="fas fa-edit"></i>
-                                                    </button>
-                                                    <button
-                                                        class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                                                        title="Delete">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <% }); %>
-                                </tbody>
-                            </table>
-                        </div>
+                                            </div>
+                                        </div>
+                                        <div class="flex justify-end mt-6">
+                                            <button type="submit"
+                                                class="px-6 py-3 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all"
+                                                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                                <i class="fas fa-save mr-2"></i>Save Stripe Settings
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
 
-                        <!-- Pagination -->
-                        <div class="flex items-center justify-between px-6 py-4 border-t border-gray-200">
-                            <p class="text-sm text-gray-600">
-                                Showing <span class="font-semibold">1</span> to <span class="font-semibold">
-                                    <%= users.length %>
-                                </span> of <span class="font-semibold">
-                                    <%= users.length %>
-                                </span> results
-                            </p>
-                            <div class="flex space-x-2">
-                                <button
-                                    class="px-4 py-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 disabled:opacity-50"
-                                    disabled>
-                                    <i class="fas fa-chevron-left"></i>
-                                </button>
-                                <button class="px-4 py-2 text-white rounded-lg"
-                                    style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                                    1
-                                </button>
-                                <button
-                                    class="px-4 py-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50">
-                                    <i class="fas fa-chevron-right"></i>
-                                </button>
+                                <!-- PayPal Settings -->
+                                <div class="bg-white rounded-xl shadow-md p-6 settings-card">
+                                    <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                                        <i class="fab fa-paypal text-purple-500 mr-3"></i>
+                                        PayPal Payment Gateway
+                                    </h3>
+                                    <form id="paypalForm">
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div class="input-group">
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">Client
+                                                    ID</label>
+                                                <input type="text" id="paypalClientId"
+                                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                    placeholder="PayPal Client ID">
+                                            </div>
+                                            <div class="input-group">
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">Client
+                                                    Secret</label>
+                                                <input type="password" id="paypalSecret"
+                                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                    placeholder="PayPal Client Secret">
+                                            </div>
+                                            <div class="input-group">
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">Mode</label>
+                                                <select id="paypalMode"
+                                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none">
+                                                    <option value="sandbox">Sandbox (Test)</option>
+                                                    <option value="live">Live (Production)</option>
+                                                </select>
+                                            </div>
+                                            <div class="input-group">
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">Enable
+                                                    PayPal</label>
+                                                <div class="flex items-center mt-2">
+                                                    <input type="checkbox" id="paypalEnabled"
+                                                        class="w-5 h-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500">
+                                                    <label for="paypalEnabled" class="ml-2 text-sm text-gray-700">Enable
+                                                        PayPal payments</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="flex justify-end mt-6">
+                                            <button type="submit"
+                                                class="px-6 py-3 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all"
+                                                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                                <i class="fas fa-save mr-2"></i>Save PayPal Settings
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <!-- Razorpay Settings -->
+                                <div class="bg-white rounded-xl shadow-md p-6 settings-card">
+                                    <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                                        <i class="fas fa-wallet text-purple-500 mr-3"></i>
+                                        Razorpay Payment Gateway
+                                    </h3>
+                                    <form id="razorpayForm">
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div class="input-group">
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">Key
+                                                    ID</label>
+                                                <input type="text" id="razorpayKeyId"
+                                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                    placeholder="rzp_test_...">
+                                            </div>
+                                            <div class="input-group">
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">Key
+                                                    Secret</label>
+                                                <input type="password" id="razorpaySecret"
+                                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                    placeholder="Razorpay Secret Key">
+                                            </div>
+                                            <div class="input-group">
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">Webhook
+                                                    Secret</label>
+                                                <input type="password" id="razorpayWebhook"
+                                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                    placeholder="Webhook Secret">
+                                            </div>
+                                            <div class="input-group">
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">Enable
+                                                    Razorpay</label>
+                                                <div class="flex items-center mt-2">
+                                                    <input type="checkbox" id="razorpayEnabled"
+                                                        class="w-5 h-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500">
+                                                    <label for="razorpayEnabled"
+                                                        class="ml-2 text-sm text-gray-700">Enable Razorpay
+                                                        payments</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="flex justify-end mt-6">
+                                            <button type="submit"
+                                                class="px-6 py-3 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all"
+                                                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                                <i class="fas fa-save mr-2"></i>Save Razorpay Settings
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
                         </div>
+
+                        <!-- App Links Tab -->
+                        <div id="apps" class="tab-content">
+                            <div class="bg-white rounded-xl shadow-md p-6 settings-card">
+                                <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                                    <i class="fas fa-mobile-alt text-purple-500 mr-3"></i>
+                                    Mobile Application Links
+                                </h3>
+                                <form id="appLinksForm">
+                                    <div class="space-y-6">
+                                        <!-- Android Settings -->
+                                        <div class="border-l-4 border-green-500 pl-6">
+                                            <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                                                <i class="fab fa-android text-green-500 mr-2"></i>
+                                                Android Application
+                                            </h4>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <div class="input-group">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Play
+                                                        Store URL</label>
+                                                    <input type="url" id="androidPlayStore"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                        placeholder="https://play.google.com/store/apps/details?id=...">
+                                                </div>
+                                                <div class="input-group">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">APK
+                                                        Download URL</label>
+                                                    <input type="url" id="androidApkUrl"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                        placeholder="https://example.com/app.apk">
+                                                </div>
+                                                <div class="input-group">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">App
+                                                        Version</label>
+                                                    <input type="text" id="androidVersion"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                        placeholder="1.0.0">
+                                                </div>
+                                                <div class="input-group">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Package
+                                                        Name</label>
+                                                    <input type="text" id="androidPackage"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                        placeholder="com.example.app">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- iOS Settings -->
+                                        <div class="border-l-4 border-blue-500 pl-6">
+                                            <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                                                <i class="fab fa-apple text-blue-500 mr-2"></i>
+                                                iOS Application
+                                            </h4>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <div class="input-group">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">App
+                                                        Store URL</label>
+                                                    <input type="url" id="iosAppStore"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                        placeholder="https://apps.apple.com/app/id...">
+                                                </div>
+                                                <div class="input-group">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">App
+                                                        Version</label>
+                                                    <input type="text" id="iosVersion"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                        placeholder="1.0.0">
+                                                </div>
+                                                <div class="input-group">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Bundle
+                                                        ID</label>
+                                                    <input type="text" id="iosBundle"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                        placeholder="com.example.app">
+                                                </div>
+                                                <div class="input-group">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Team
+                                                        ID</label>
+                                                    <input type="text" id="iosTeamId"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                        placeholder="Apple Team ID">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- App Status -->
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div class="input-group">
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">Maintenance
+                                                    Mode</label>
+                                                <div class="flex items-center">
+                                                    <input type="checkbox" id="maintenanceMode"
+                                                        class="w-5 h-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500">
+                                                    <label for="maintenanceMode"
+                                                        class="ml-2 text-sm text-gray-700">Enable maintenance
+                                                        mode</label>
+                                                </div>
+                                            </div>
+                                            <div class="input-group">
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">Force
+                                                    Update</label>
+                                                <div class="flex items-center">
+                                                    <input type="checkbox" id="forceUpdate"
+                                                        class="w-5 h-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500">
+                                                    <label for="forceUpdate" class="ml-2 text-sm text-gray-700">Force
+                                                        users to update app</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-end mt-6">
+                                        <button type="submit"
+                                            class="px-6 py-3 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all"
+                                            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                            <i class="fas fa-save mr-2"></i>Save App Links
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Web Settings Tab -->
+                        <div id="web" class="tab-content">
+                            <div class="bg-white rounded-xl shadow-md p-6 settings-card">
+                                <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                                    <i class="fas fa-globe text-purple-500 mr-3"></i>
+                                    Web Application Settings
+                                </h3>
+                                <form id="webSettingsForm">
+                                    <div class="space-y-6">
+                                        <!-- Basic Settings -->
+                                        <div>
+                                            <h4 class="text-lg font-semibold text-gray-800 mb-4">Basic Information</h4>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <div class="input-group">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Website
+                                                        Title</label>
+                                                    <input type="text" id="webTitle"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                        placeholder="Your Website Title">
+                                                </div>
+                                                <div class="input-group">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Website
+                                                        URL</label>
+                                                    <input type="url" id="webUrl"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                        placeholder="https://example.com">
+                                                </div>
+                                                <div class="input-group md:col-span-2">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Website
+                                                        Description</label>
+                                                    <textarea id="webDescription" rows="3"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                        placeholder="Brief description of your website"></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- SEO Meta Tags -->
+                                        <div>
+                                            <h4 class="text-lg font-semibold text-gray-800 mb-4">SEO Meta Tags</h4>
+                                            <div class="grid grid-cols-1 gap-6">
+                                                <div class="input-group">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Meta
+                                                        Title</label>
+                                                    <input type="text" id="metaTitle"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                        placeholder="SEO optimized title">
+                                                    <p class="text-xs text-gray-500 mt-1">Recommended: 50-60 characters
+                                                    </p>
+                                                </div>
+                                                <div class="input-group">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Meta
+                                                        Description</label>
+                                                    <textarea id="metaDescription" rows="3"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                        placeholder="SEO optimized description"></textarea>
+                                                    <p class="text-xs text-gray-500 mt-1">Recommended: 150-160
+                                                        characters</p>
+                                                </div>
+                                                <div class="input-group">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Meta
+                                                        Keywords</label>
+                                                    <input type="text" id="metaKeywords"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                        placeholder="keyword1, keyword2, keyword3">
+                                                    <p class="text-xs text-gray-500 mt-1">Separate keywords with commas
+                                                    </p>
+                                                </div>
+                                                <div class="input-group">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Meta
+                                                        Author</label>
+                                                    <input type="text" id="metaAuthor"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                        placeholder="Author name">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Open Graph Meta Tags -->
+                                        <div>
+                                            <h4 class="text-lg font-semibold text-gray-800 mb-4">Open Graph (Social
+                                                Media)</h4>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <div class="input-group">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">OG
+                                                        Title</label>
+                                                    <input type="text" id="ogTitle"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                        placeholder="Title for social sharing">
+                                                </div>
+                                                <div class="input-group">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">OG
+                                                        Type</label>
+                                                    <select id="ogType"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none">
+                                                        <option value="website">Website</option>
+                                                        <option value="article">Article</option>
+                                                        <option value="product">Product</option>
+                                                    </select>
+                                                </div>
+                                                <div class="input-group md:col-span-2">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">OG
+                                                        Description</label>
+                                                    <textarea id="ogDescription" rows="2"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                        placeholder="Description for social sharing"></textarea>
+                                                </div>
+                                                <div class="input-group md:col-span-2">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">OG Image
+                                                        URL</label>
+                                                    <input type="url" id="ogImage"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                        placeholder="https://example.com/og-image.jpg">
+                                                    <p class="text-xs text-gray-500 mt-1">Recommended size: 1200x630
+                                                        pixels</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Twitter Card Meta Tags -->
+                                        <div>
+                                            <h4 class="text-lg font-semibold text-gray-800 mb-4">Twitter Card</h4>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <div class="input-group">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Twitter
+                                                        Card Type</label>
+                                                    <select id="twitterCard"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none">
+                                                        <option value="summary">Summary</option>
+                                                        <option value="summary_large_image">Summary Large Image</option>
+                                                        <option value="app">App</option>
+                                                        <option value="player">Player</option>
+                                                    </select>
+                                                </div>
+                                                <div class="input-group">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Twitter
+                                                        Site Handle</label>
+                                                    <input type="text" id="twitterSite"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                        placeholder="@yourusername">
+                                                </div>
+                                                <div class="input-group">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Twitter
+                                                        Title</label>
+                                                    <input type="text" id="twitterTitle"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                        placeholder="Title for Twitter">
+                                                </div>
+                                                <div class="input-group">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Twitter
+                                                        Image URL</label>
+                                                    <input type="url" id="twitterImage"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                        placeholder="https://example.com/twitter-image.jpg">
+                                                </div>
+                                                <div class="input-group md:col-span-2">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Twitter
+                                                        Description</label>
+                                                    <textarea id="twitterDescription" rows="2"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                        placeholder="Description for Twitter"></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Favicon and Logo -->
+                                        <div>
+                                            <h4 class="text-lg font-semibold text-gray-800 mb-4">Branding</h4>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <div class="input-group">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Favicon
+                                                        URL</label>
+                                                    <input type="url" id="faviconUrl"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                        placeholder="https://example.com/favicon.ico">
+                                                    <p class="text-xs text-gray-500 mt-1">16x16 or 32x32 pixels</p>
+                                                </div>
+                                                <div class="input-group">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Logo
+                                                        URL</label>
+                                                    <input type="url" id="logoUrl"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                        placeholder="https://example.com/logo.png">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Analytics and Tracking -->
+                                        <div>
+                                            <h4 class="text-lg font-semibold text-gray-800 mb-4">Analytics & Tracking
+                                            </h4>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <div class="input-group">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Google
+                                                        Analytics ID</label>
+                                                    <input type="text" id="googleAnalytics"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                        placeholder="G-XXXXXXXXXX">
+                                                </div>
+                                                <div class="input-group">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Facebook
+                                                        Pixel ID</label>
+                                                    <input type="text" id="facebookPixel"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                        placeholder="Facebook Pixel ID">
+                                                </div>
+                                                <div class="input-group">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Google
+                                                        Tag Manager ID</label>
+                                                    <input type="text" id="googleTagManager"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                        placeholder="GTM-XXXXXXX">
+                                                </div>
+                                                <div class="input-group">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Hotjar
+                                                        Site ID</label>
+                                                    <input type="text" id="hotjarId"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                        placeholder="Hotjar Site ID">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Contact Information -->
+                                        <div>
+                                            <h4 class="text-lg font-semibold text-gray-800 mb-4">Contact Information
+                                            </h4>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <div class="input-group">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Contact
+                                                        Email</label>
+                                                    <input type="email" id="contactEmail"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                        placeholder="contact@example.com">
+                                                </div>
+                                                <div class="input-group">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Contact
+                                                        Phone</label>
+                                                    <input type="tel" id="contactPhone"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                        placeholder="+1 234 567 8900">
+                                                </div>
+                                                <div class="input-group md:col-span-2">
+                                                    <label
+                                                        class="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                                                    <textarea id="contactAddress" rows="2"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                        placeholder="Your business address"></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Social Media Links -->
+                                        <div>
+                                            <h4 class="text-lg font-semibold text-gray-800 mb-4">Social Media Links</h4>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <div class="input-group">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                        <i class="fab fa-facebook text-blue-600 mr-2"></i>Facebook
+                                                    </label>
+                                                    <input type="url" id="facebookUrl"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                        placeholder="https://facebook.com/yourpage">
+                                                </div>
+                                                <div class="input-group">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                        <i class="fab fa-twitter text-blue-400 mr-2"></i>Twitter
+                                                    </label>
+                                                    <input type="url" id="twitterUrl"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                        placeholder="https://twitter.com/yourusername">
+                                                </div>
+                                                <div class="input-group">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                        <i class="fab fa-instagram text-pink-600 mr-2"></i>Instagram
+                                                    </label>
+                                                    <input type="url" id="instagramUrl"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                        placeholder="https://instagram.com/yourusername">
+                                                </div>
+                                                <div class="input-group">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                        <i class="fab fa-linkedin text-blue-700 mr-2"></i>LinkedIn
+                                                    </label>
+                                                    <input type="url" id="linkedinUrl"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                        placeholder="https://linkedin.com/company/yourcompany">
+                                                </div>
+                                                <div class="input-group">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                        <i class="fab fa-youtube text-red-600 mr-2"></i>YouTube
+                                                    </label>
+                                                    <input type="url" id="youtubeUrl"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                        placeholder="https://youtube.com/c/yourchannel">
+                                                </div>
+                                                <div class="input-group">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                        <i class="fab fa-github text-gray-800 mr-2"></i>GitHub
+                                                    </label>
+                                                    <input type="url" id="githubUrl"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                                        placeholder="https://github.com/yourusername">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex justify-end mt-6">
+                                        <button type="submit"
+                                            class="px-6 py-3 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all"
+                                            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                            <i class="fas fa-save mr-2"></i>Save Web Settings
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
                     </div>
                 </main>
         </div>
 
-        <!-- Mobile Overlay -->
-        <div id="overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"></div>
-
         <script>
-            // Mobile menu toggle
-            const menuBtn = document.getElementById('menuBtn');
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('overlay');
+            document.addEventListener('DOMContentLoaded', () => {
+                // ==== Tab Switching Functionality ====
+                const tabButtons = document.querySelectorAll('.tab-button');
+                const tabContents = document.querySelectorAll('.tab-content');
 
-            menuBtn.addEventListener('click', () => {
-                sidebar.classList.toggle('hidden');
-                overlay.classList.toggle('hidden');
-            });
+                tabButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        const tabId = button.getAttribute('data-tab');
 
-            overlay.addEventListener('click', () => {
-                sidebar.classList.add('hidden');
-                overlay.classList.add('hidden');
-            });
+                        // Remove active class from all buttons and contents
+                        tabButtons.forEach(btn => btn.classList.remove('active'));
+                        tabContents.forEach(content => content.classList.remove('active'));
 
-            // Search functionality
-            const searchInput = document.getElementById('searchInput');
-            searchInput.addEventListener('keyup', function () {
-                const filter = this.value.toLowerCase();
-                const rows = document.querySelectorAll('.table-row');
+                        // Add active class to clicked button and corresponding content
+                        button.classList.add('active');
+                        document.getElementById(tabId).classList.add('active');
+                    });
+                });
 
-                rows.forEach(row => {
-                    const name = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
-                    const email = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+                // ==== Helper Function to Get Token ====
+                function getTokenFromCookie() {
+                    try {
+                        const token = localStorage.getItem('token');
+                        if (token) {
+                            return JSON.parse(token);
+                        }
 
-                    if (name.includes(filter) || email.includes(filter)) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
+                        const cookies = document.cookie.split(';');
+                        for (let cookie of cookies) {
+                            const [name, value] = cookie.trim().split('=');
+                            if (name === 'token') {
+                                return value;
+                            }
+                        }
+                        return null;
+                    } catch (error) {
+                        console.error('Error getting token:', error);
+                        return null;
+                    }
+                }
+
+
+                // ==== FCM Form Submit ====
+                document.getElementById('fcmForm').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const token = getTokenFromCookie();
+
+                    const formData = {
+                        serverKey: document.getElementById('fcmServerKey').value,
+                        senderId: document.getElementById('fcmSenderId').value,
+                        enabled: document.getElementById('fcmEnabled').checked
+                    };
+
+                    try {
+                        const res = await fetch('/api/settings/fcm', {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify(formData)
+                        });
+
+                        const data = await res.json();
+                        if (res.ok) {
+                            alert('FCM settings updated successfully!');
+                        } else {
+                            alert(data.message || 'Failed to update FCM settings');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Something went wrong');
                     }
                 });
+
+                // ==== Firebase JSON Upload ====
+                document.getElementById('firebaseJson').addEventListener('change', async (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                            document.getElementById('firebaseJsonContent').value = event.target.result;
+                        };
+                        reader.readAsText(file);
+                    }
+                });
+
+                document.getElementById('firebaseForm').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const token = getTokenFromCookie();
+
+                    const jsonContent = document.getElementById('firebaseJsonContent').value;
+
+                    try {
+                        JSON.parse(jsonContent); // Validate JSON
+                    } catch (error) {
+                        alert('Invalid JSON format!');
+                        return;
+                    }
+
+                    try {
+                        const res = await fetch('/api/settings/firebase', {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({ firebaseConfig: jsonContent })
+                        });
+
+                        const data = await res.json();
+                        if (res.ok) {
+                            alert('Firebase config updated successfully!');
+                        } else {
+                            alert(data.message || 'Failed to update Firebase config');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Something went wrong');
+                    }
+                });
+
+                // ==== SMTP Form Submit ====
+                document.getElementById('smtpForm').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const token = getTokenFromCookie();
+
+                    const formData = {
+                        host: document.getElementById('smtpHost').value,
+                        port: document.getElementById('smtpPort').value,
+                        username: document.getElementById('smtpUsername').value,
+                        password: document.getElementById('smtpPassword').value,
+                        fromEmail: document.getElementById('smtpFromEmail').value,
+                        fromName: document.getElementById('smtpFromName').value,
+                        encryption: document.getElementById('smtpEncryption').value,
+                        enabled: document.getElementById('smtpEnabled').checked
+                    };
+
+                    try {
+                        const res = await fetch('/api/settings/smtp', {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify(formData)
+                        });
+
+                        const data = await res.json();
+                        if (res.ok) {
+                            alert('SMTP settings updated successfully!');
+                        } else {
+                            alert(data.message || 'Failed to update SMTP settings');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Something went wrong');
+                    }
+                });
+
+                // ==== Test SMTP Connection ====
+                document.getElementById('testSmtpBtn').addEventListener('click', async () => {
+                    const token = getTokenFromCookie();
+
+                    try {
+                        const res = await fetch('/api/settings/smtp/test', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+
+                        const data = await res.json();
+                        if (res.ok) {
+                            alert('SMTP connection test successful!');
+                        } else {
+                            alert(data.message || 'SMTP connection test failed');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Something went wrong');
+                    }
+                });
+
+                // ==== Stripe Form Submit ====
+                document.getElementById('stripeForm').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const token = getTokenFromCookie();
+
+                    const formData = {
+                        publishableKey: document.getElementById('stripePublishable').value,
+                        secretKey: document.getElementById('stripeSecret').value,
+                        webhookSecret: document.getElementById('stripeWebhook').value,
+                        enabled: document.getElementById('stripeEnabled').checked
+                    };
+
+                    try {
+                        const res = await fetch('/api/settings/payment/stripe', {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify(formData)
+                        });
+
+                        const data = await res.json();
+                        if (res.ok) {
+                            alert('Stripe settings updated successfully!');
+                        } else {
+                            alert(data.message || 'Failed to update Stripe settings');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Something went wrong');
+                    }
+                });
+
+                // ==== PayPal Form Submit ====
+                document.getElementById('paypalForm').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const token = getTokenFromCookie();
+
+                    const formData = {
+                        clientId: document.getElementById('paypalClientId').value,
+                        secret: document.getElementById('paypalSecret').value,
+                        mode: document.getElementById('paypalMode').value,
+                        enabled: document.getElementById('paypalEnabled').checked
+                    };
+
+                    try {
+                        const res = await fetch('/api/settings/payment/paypal', {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify(formData)
+                        });
+
+                        const data = await res.json();
+                        if (res.ok) {
+                            alert('PayPal settings updated successfully!');
+                        } else {
+                            alert(data.message || 'Failed to update PayPal settings');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Something went wrong');
+                    }
+                });
+
+                // ==== Razorpay Form Submit ====
+                document.getElementById('razorpayForm').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const token = getTokenFromCookie();
+
+                    const formData = {
+                        keyId: document.getElementById('razorpayKeyId').value,
+                        secret: document.getElementById('razorpaySecret').value,
+                        webhookSecret: document.getElementById('razorpayWebhook').value,
+                        enabled: document.getElementById('razorpayEnabled').checked
+                    };
+
+                    try {
+                        const res = await fetch('/api/settings/payment/razorpay', {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify(formData)
+                        });
+
+                        const data = await res.json();
+                        if (res.ok) {
+                            alert('Razorpay settings updated successfully!');
+                        } else {
+                            alert(data.message || 'Failed to update Razorpay settings');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Something went wrong');
+                    }
+                });
+
+                // ==== App Links Form Submit ====
+                document.getElementById('appLinksForm').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const token = getTokenFromCookie();
+
+                    const formData = {
+                        android: {
+                            playStoreUrl: document.getElementById('androidPlayStore').value,
+                            apkUrl: document.getElementById('androidApkUrl').value,
+                            version: document.getElementById('androidVersion').value,
+                            packageName: document.getElementById('androidPackage').value
+                        },
+                        ios: {
+                            appStoreUrl: document.getElementById('iosAppStore').value,
+                            version: document.getElementById('iosVersion').value,
+                            bundleId: document.getElementById('iosBundle').value,
+                            teamId: document.getElementById('iosTeamId').value
+                        },
+                        maintenanceMode: document.getElementById('maintenanceMode').checked,
+                        forceUpdate: document.getElementById('forceUpdate').checked
+                    };
+
+                    try {
+                        const res = await fetch('/api/settings/app-links', {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify(formData)
+                        });
+
+                        const data = await res.json();
+                        if (res.ok) {
+                            alert('App links updated successfully!');
+                        } else {
+                            alert(data.message || 'Failed to update app links');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Something went wrong');
+                    }
+                });
+
+                // ==== Web Settings Form Submit ====
+                document.getElementById('webSettingsForm').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const token = getTokenFromCookie();
+
+                    const formData = {
+                        basic: {
+                            title: document.getElementById('webTitle').value,
+                            url: document.getElementById('webUrl').value,
+                            description: document.getElementById('webDescription').value
+                        },
+                        meta: {
+                            title: document.getElementById('metaTitle').value,
+                            description: document.getElementById('metaDescription').value,
+                            keywords: document.getElementById('metaKeywords').value,
+                            author: document.getElementById('metaAuthor').value
+                        },
+                        openGraph: {
+                            title: document.getElementById('ogTitle').value,
+                            type: document.getElementById('ogType').value,
+                            description: document.getElementById('ogDescription').value,
+                            image: document.getElementById('ogImage').value
+                        },
+                        twitter: {
+                            card: document.getElementById('twitterCard').value,
+                            site: document.getElementById('twitterSite').value,
+                            title: document.getElementById('twitterTitle').value,
+                            description: document.getElementById('twitterDescription').value,
+                            image: document.getElementById('twitterImage').value
+                        },
+                        branding: {
+                            faviconUrl: document.getElementById('faviconUrl').value,
+                            logoUrl: document.getElementById('logoUrl').value
+                        },
+                        analytics: {
+                            googleAnalytics: document.getElementById('googleAnalytics').value,
+                            facebookPixel: document.getElementById('facebookPixel').value,
+                            googleTagManager: document.getElementById('googleTagManager').value,
+                            hotjarId: document.getElementById('hotjarId').value
+                        },
+                        contact: {
+                            email: document.getElementById('contactEmail').value,
+                            phone: document.getElementById('contactPhone').value,
+                            address: document.getElementById('contactAddress').value
+                        },
+                        social: {
+                            facebook: document.getElementById('facebookUrl').value,
+                            twitter: document.getElementById('twitterUrl').value,
+                            instagram: document.getElementById('instagramUrl').value,
+                            linkedin: document.getElementById('linkedinUrl').value,
+                            youtube: document.getElementById('youtubeUrl').value,
+                            github: document.getElementById('githubUrl').value
+                        }
+                    };
+
+                    try {
+                        const res = await fetch('/api/settings/web', {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify(formData)
+                        });
+
+                        const data = await res.json();
+                        if (res.ok) {
+                            alert('Web settings updated successfully!');
+                        } else {
+                            alert(data.message || 'Failed to update web settings');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Something went wrong');
+                    }
+                });
+
+                // ==== Load Settings on Page Load ====
+                async function loadSettings() {
+                    const token = getTokenFromCookie();
+
+                    try {
+                        const res = await fetch('/api/settings/all', {
+                            method: 'GET',
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+
+                        if (res.ok) {
+                            const data = await res.json();
+                            // Populate form fields with existing settings
+                            // This would need to be implemented based on your API response structure
+                            console.log('Settings loaded:', data);
+                            populateFormFields(data?.data || data?.data || {});
+                        }
+                    } catch (error) {
+                        console.error('Error loading settings:', error);
+                    }
+                }
+                // ==== Populate Form Fields with Loaded Settings ====
+                function populateFormFields(settings) {
+                    console.log(settings, "setting@123s")
+                    // FCM Settings
+                    if (settings.fcm) {
+                        document.getElementById('fcmServerKey').value = settings.fcm.serverKey || '';
+                        document.getElementById('fcmSenderId').value = settings.fcm.senderId || '';
+                        document.getElementById('fcmEnabled').checked = settings.fcm.enabled || false;
+                    }
+
+                    // SMTP Settings
+                    if (settings.smtp) {
+                        document.getElementById('smtpHost').value = settings.smtp.host || '';
+                        document.getElementById('smtpPort').value = settings.smtp.port || '';
+                        document.getElementById('smtpUsername').value = settings.smtp.username || '';
+                        document.getElementById('smtpPassword').value = settings.smtp.password || '';
+                        document.getElementById('smtpFromEmail').value = settings.smtp.fromEmail || '';
+                        document.getElementById('smtpFromName').value = settings.smtp.fromName || '';
+                        document.getElementById('smtpEncryption').value = settings.smtp.encryption || 'tls';
+                        document.getElementById('smtpEnabled').checked = settings.smtp.enabled || false;
+                    }
+
+                    // Stripe Settings
+                    if (settings.payment?.stripe) {
+                        document.getElementById('stripePublishable').value = settings.payment.stripe.publishableKey || '';
+                        document.getElementById('stripeSecret').value = settings.payment.stripe.secretKey || '';
+                        document.getElementById('stripeWebhook').value = settings.payment.stripe.webhookSecret || '';
+                        document.getElementById('stripeEnabled').checked = settings.payment.stripe.enabled || false;
+                    }
+
+                    // PayPal Settings
+                    if (settings.payment?.paypal) {
+                        document.getElementById('paypalClientId').value = settings.payment.paypal.clientId || '';
+                        document.getElementById('paypalSecret').value = settings.payment.paypal.secret || '';
+                        document.getElementById('paypalMode').value = settings.payment.paypal.mode || 'sandbox';
+                        document.getElementById('paypalEnabled').checked = settings.payment.paypal.enabled || false;
+                    }
+
+                    // Razorpay Settings
+                    if (settings.payment?.razorpay) {
+                        document.getElementById('razorpayKeyId').value = settings.payment.razorpay.keyId || '';
+                        document.getElementById('razorpaySecret').value = settings.payment.razorpay.secret || '';
+                        document.getElementById('razorpayWebhook').value = settings.payment.razorpay.webhookSecret || '';
+                        document.getElementById('razorpayEnabled').checked = settings.payment.razorpay.enabled || false;
+                    }
+
+                    // App Links Settings
+                    if (settings.appLinks) {
+                        if (settings.appLinks.android) {
+                            document.getElementById('androidPlayStore').value = settings.appLinks.android.playStoreUrl || '';
+                            document.getElementById('androidApkUrl').value = settings.appLinks.android.apkUrl || '';
+                            document.getElementById('androidVersion').value = settings.appLinks.android.version || '';
+                            document.getElementById('androidPackage').value = settings.appLinks.android.packageName || '';
+                        }
+                        if (settings.appLinks.ios) {
+                            document.getElementById('iosAppStore').value = settings.appLinks.ios.appStoreUrl || '';
+                            document.getElementById('iosVersion').value = settings.appLinks.ios.version || '';
+                            document.getElementById('iosBundle').value = settings.appLinks.ios.bundleId || '';
+                            document.getElementById('iosTeamId').value = settings.appLinks.ios.teamId || '';
+                        }
+                        document.getElementById('maintenanceMode').checked = settings.appLinks.maintenanceMode || false;
+                        document.getElementById('forceUpdate').checked = settings.appLinks.forceUpdate || false;
+                    }
+
+                    // Web Settings
+                    if (settings.web) {
+                        // Basic Information
+                        if (settings.web.basic) {
+                            document.getElementById('webTitle').value = settings.web.basic.title || '';
+                            document.getElementById('webUrl').value = settings.web.basic.url || '';
+                            document.getElementById('webDescription').value = settings.web.basic.description || '';
+                        }
+
+                        // Meta Tags
+                        if (settings.web.meta) {
+                            document.getElementById('metaTitle').value = settings.web.meta.title || '';
+                            document.getElementById('metaDescription').value = settings.web.meta.description || '';
+                            document.getElementById('metaKeywords').value = settings.web.meta.keywords || '';
+                            document.getElementById('metaAuthor').value = settings.web.meta.author || '';
+                        }
+
+                        // Open Graph
+                        if (settings.web.openGraph) {
+                            document.getElementById('ogTitle').value = settings.web.openGraph.title || '';
+                            document.getElementById('ogType').value = settings.web.openGraph.type || 'website';
+                            document.getElementById('ogDescription').value = settings.web.openGraph.description || '';
+                            document.getElementById('ogImage').value = settings.web.openGraph.image || '';
+                        }
+
+                        // Twitter Card
+                        if (settings.web.twitter) {
+                            document.getElementById('twitterCard').value = settings.web.twitter.card || 'summary';
+                            document.getElementById('twitterSite').value = settings.web.twitter.site || '';
+                            document.getElementById('twitterTitle').value = settings.web.twitter.title || '';
+                            document.getElementById('twitterDescription').value = settings.web.twitter.description || '';
+                            document.getElementById('twitterImage').value = settings.web.twitter.image || '';
+                        }
+
+                        // Branding
+                        if (settings.web.branding) {
+                            document.getElementById('faviconUrl').value = settings.web.branding.faviconUrl || '';
+                            document.getElementById('logoUrl').value = settings.web.branding.logoUrl || '';
+                        }
+
+                        // Analytics
+                        if (settings.web.analytics) {
+                            document.getElementById('googleAnalytics').value = settings.web.analytics.googleAnalytics || '';
+                            document.getElementById('facebookPixel').value = settings.web.analytics.facebookPixel || '';
+                            document.getElementById('googleTagManager').value = settings.web.analytics.googleTagManager || '';
+                            document.getElementById('hotjarId').value = settings.web.analytics.hotjarId || '';
+                        }
+
+                        // Contact Information
+                        if (settings.web.contact) {
+                            document.getElementById('contactEmail').value = settings.web.contact.email || '';
+                            document.getElementById('contactPhone').value = settings.web.contact.phone || '';
+                            document.getElementById('contactAddress').value = settings.web.contact.address || '';
+                        }
+
+                        // Social Media Links
+                        if (settings.web.social) {
+                            document.getElementById('facebookUrl').value = settings.web.social.facebook || '';
+                            document.getElementById('twitterUrl').value = settings.web.social.twitter || '';
+                            document.getElementById('instagramUrl').value = settings.web.social.instagram || '';
+                            document.getElementById('linkedinUrl').value = settings.web.social.linkedin || '';
+                            document.getElementById('youtubeUrl').value = settings.web.social.youtube || '';
+                            document.getElementById('githubUrl').value = settings.web.social.github || '';
+                        }
+                    }
+
+                    console.log('Settings loaded and populated successfully');
+                }
+                // Load settings when page loads
+                loadSettings();
             });
         </script>
 </body>

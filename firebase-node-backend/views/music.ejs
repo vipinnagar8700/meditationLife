@@ -24,14 +24,6 @@
             }
         }
 
-        .badge-admin {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-
-        .badge-user {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        }
-
         .menu-item {
             transition: all 0.3s ease;
         }
@@ -46,11 +38,11 @@
             color: white;
         }
 
-        .badge-admin {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .badge-premium {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
         }
 
-        .badge-user {
+        .badge-free {
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
         }
 
@@ -59,27 +51,123 @@
             transform: scale(1.01);
             transition: all 0.2s ease;
         }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 50;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal.show {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 1rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideDown 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.toggle-slider {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+
+        input:checked+.toggle-slider:before {
+            transform: translateX(26px);
+        }
     </style>
 </head>
 
 <body class="bg-gray-100">
-    <!-- Header Component -->
+    <!-- Header -->
     <%- include('./layout/header') %>
         <div class="flex pt-16">
             <!-- Sidebar Component -->
             <%- include('./layout/sidebar') %>
+
                 <!-- Main Content -->
                 <main class="flex-1 p-6 lg:p-8">
                     <!-- Header Section -->
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
                         <div>
                             <h2 class="text-3xl font-bold text-gray-800 mb-2">Music Management</h2>
-                            <p class="text-gray-600">Manage all users and their permissions</p>
+                            <p class="text-gray-600">Manage all music tracks and categories</p>
                         </div>
-                        <button
+                        <button id="addMusicBtn"
                             class="mt-4 md:mt-0 px-6 py-3 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all"
                             style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                            <i class="fas fa-user-plus mr-2"></i>Add New User
+                            <i class="fas fa-upload mr-2"></i>Upload Music
                         </button>
                     </div>
 
@@ -88,27 +176,11 @@
                         <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-purple-500">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="text-gray-500 text-sm font-medium mb-1">Total Users</p>
-                                    <h3 class="text-2xl font-bold text-gray-800">
-                                        <%= users.length %>
-                                    </h3>
+                                    <p class="text-gray-500 text-sm font-medium mb-1">Total Music</p>
+                                    <h3 class="text-2xl font-bold text-gray-800" id="totalMusic">0</h3>
                                 </div>
                                 <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                                    <i class="fas fa-users text-purple-500 text-xl"></i>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-gray-500 text-sm font-medium mb-1">Admin Users</p>
-                                    <h3 class="text-2xl font-bold text-gray-800">
-                                        <%= users.filter(u=> u.role === 'admin').length %>
-                                    </h3>
-                                </div>
-                                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                                    <i class="fas fa-user-shield text-blue-500 text-xl"></i>
+                                    <i class="fas fa-music text-purple-500 text-xl"></i>
                                 </div>
                             </div>
                         </div>
@@ -116,13 +188,23 @@
                         <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="text-gray-500 text-sm font-medium mb-1">Regular Users</p>
-                                    <h3 class="text-2xl font-bold text-gray-800">
-                                        <%= users.filter(u=> u.role === 'user').length %>
-                                    </h3>
+                                    <p class="text-gray-500 text-sm font-medium mb-1">Free Music</p>
+                                    <h3 class="text-2xl font-bold text-gray-800" id="freeMusic">0</h3>
                                 </div>
                                 <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                                    <i class="fas fa-user text-green-500 text-xl"></i>
+                                    <i class="fas fa-gift text-green-500 text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-yellow-500">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500 text-sm font-medium mb-1">Premium Music</p>
+                                    <h3 class="text-2xl font-bold text-gray-800" id="premiumMusic">0</h3>
+                                </div>
+                                <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-crown text-yellow-500 text-xl"></i>
                                 </div>
                             </div>
                         </div>
@@ -135,116 +217,53 @@
                                 <div class="relative">
                                     <i
                                         class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                                    <input type="text" id="searchInput" placeholder="Search by name or email..."
+                                    <input type="text" id="searchInput" placeholder="Search by title or description..."
                                         class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none">
                                 </div>
                             </div>
-                            <select
-                                class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none">
-                                <option value="">All Roles</option>
-                                <option value="admin">Admin</option>
-                                <option value="user">User</option>
+                            <select id="categoryFilter"
+                                class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none">
+                                <option value="">All Categories</option>
+                            </select>
+                            <select id="statusFilter"
+                                class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none">
+                                <option value="">All Status</option>
+                                <option value="false">Free</option>
+                                <option value="true">Premium</option>
                             </select>
                         </div>
                     </div>
 
-                    <!-- Users Table -->
+                    <!-- Music Table -->
                     <div class="bg-white rounded-xl shadow-md overflow-hidden">
                         <div class="overflow-x-auto">
                             <table class="w-full">
                                 <thead class="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
                                     <tr>
                                         <th class="px-6 py-4 text-left text-sm font-semibold">#</th>
-                                        <th class="px-6 py-4 text-left text-sm font-semibold">Name</th>
-                                        <th class="px-6 py-4 text-left text-sm font-semibold">Email</th>
-                                        <th class="px-6 py-4 text-left text-sm font-semibold">Role</th>
-                                        <th class="px-6 py-4 text-left text-sm font-semibold">Joined Date</th>
+                                        <th class="px-6 py-4 text-left text-sm font-semibold">Title</th>
+                                        <th class="px-6 py-4 text-left text-sm font-semibold">Category</th>
+                                        <th class="px-6 py-4 text-left text-sm font-semibold">Status</th>
+                                        <th class="px-6 py-4 text-left text-sm font-semibold">Created Date</th>
                                         <th class="px-6 py-4 text-center text-sm font-semibold">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-gray-200">
-                                    <% users.forEach((u, index)=> { %>
-                                        <tr class="table-row">
-                                            <td class="px-6 py-4 text-gray-700 font-medium">
-                                                <%= index + 1 %>
-                                            </td>
-                                            <td class="px-6 py-4">
-                                                <div class="flex items-center space-x-3">
-                                                    <div
-                                                        class="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold">
-                                                        <%= u.name.charAt(0).toUpperCase() %>
-                                                    </div>
-                                                    <span class="font-semibold text-gray-800">
-                                                        <%= u.name %>
-                                                    </span>
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4 text-gray-600">
-                                                <%= u.email %>
-                                            </td>
-                                            <td class="px-6 py-4">
-                                                <% if (u.role==='admin' ) { %>
-                                                    <span
-                                                        class="badge-admin px-3 py-1 rounded-full text-white text-xs font-semibold">
-                                                        <i class="fas fa-crown mr-1"></i>Admin
-                                                    </span>
-                                                    <% } else { %>
-                                                        <span
-                                                            class="badge-user px-3 py-1 rounded-full text-white text-xs font-semibold">
-                                                            <i class="fas fa-user mr-1"></i>User
-                                                        </span>
-                                                        <% } %>
-                                            </td>
-                                            <td class="px-6 py-4 text-gray-600">
-                                                <%= new Date(u.createdAt).toLocaleDateString('en-US', { year: 'numeric'
-                                                    , month: 'short' , day: 'numeric' }) %>
-                                            </td>
-                                            <td class="px-6 py-4">
-                                                <div class="flex items-center justify-center space-x-2">
-                                                    <button
-                                                        class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
-                                                        title="View">
-                                                        <i class="fas fa-eye"></i>
-                                                    </button>
-                                                    <button
-                                                        class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-all"
-                                                        title="Edit">
-                                                        <i class="fas fa-edit"></i>
-                                                    </button>
-                                                    <button
-                                                        class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                                                        title="Delete">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <% }); %>
+                                <tbody id="musicTableBody" class="divide-y divide-gray-200">
+                                    <!-- JavaScript will populate this -->
                                 </tbody>
                             </table>
                         </div>
 
                         <!-- Pagination -->
                         <div class="flex items-center justify-between px-6 py-4 border-t border-gray-200">
-                            <p class="text-sm text-gray-600">
-                                Showing <span class="font-semibold">1</span> to <span class="font-semibold">
-                                    <%= users.length %>
-                                </span> of <span class="font-semibold">
-                                    <%= users.length %>
-                                </span> results
-                            </p>
+                            <p class="text-sm text-gray-600" id="pageInfo">Loading...</p>
                             <div class="flex space-x-2">
-                                <button
-                                    class="px-4 py-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 disabled:opacity-50"
-                                    disabled>
+                                <button id="prevPage"
+                                    class="px-4 py-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
                                     <i class="fas fa-chevron-left"></i>
                                 </button>
-                                <button class="px-4 py-2 text-white rounded-lg"
-                                    style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                                    1
-                                </button>
-                                <button
-                                    class="px-4 py-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50">
+                                <button id="nextPage"
+                                    class="px-4 py-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
                                     <i class="fas fa-chevron-right"></i>
                                 </button>
                             </div>
@@ -253,9 +272,465 @@
                 </main>
         </div>
 
-        <!-- Mobile Overlay -->
-        <div id="overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"></div>
+        <!-- Add/Edit Music Modal -->
+        <div id="musicModal" class="modal">
+            <div class="modal-content">
+                <div class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-4 rounded-t-xl">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xl font-bold" id="modalTitle">Upload New Music</h3>
+                        <button id="closeModal" class="text-white hover:text-gray-200" type="button">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+                <form id="musicForm" class="p-6">
+                    <input type="hidden" id="musicId">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Title *</label>
+                            <input type="text" id="musicTitle" required
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Music URL *</label>
+                            <input type="url" id="musicUrl" required
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                placeholder="https://example.com/music.mp3">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Category *</label>
+                            <select id="musicCategory" required
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none">
+                                <option value="">Select Category</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                            <textarea id="musicDescription" rows="3"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"></textarea>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Premium Status</label>
+                                <p class="text-xs text-gray-500">Toggle to make this music premium</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="musicPremium">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="flex justify-end space-x-3 mt-6">
+                        <button type="button" id="cancelBtn"
+                            class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                            class="px-6 py-2 text-white rounded-lg shadow-lg hover:shadow-xl transition-all"
+                            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <i class="fas fa-save mr-2"></i>Save Music
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
 
+        <!-- View Music Modal -->
+        <div id="viewModal" class="modal">
+            <div class="modal-content">
+                <div class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-4 rounded-t-xl">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xl font-bold">Music Details</h3>
+                        <button id="closeViewModal" class="text-white hover:text-gray-200" type="button">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        <div class="border-b pb-3">
+                            <span class="font-medium text-gray-700">Title:</span>
+                            <p class="text-gray-800 text-lg mt-1" id="viewTitle"></p>
+                        </div>
+                        <div class="border-b pb-3">
+                            <span class="font-medium text-gray-700">Category:</span>
+                            <p class="text-gray-600 mt-1" id="viewCategory"></p>
+                        </div>
+                        <div class="border-b pb-3">
+                            <span class="font-medium text-gray-700">Status:</span>
+                            <p class="mt-1" id="viewStatus"></p>
+                        </div>
+                        <div class="border-b pb-3">
+                            <span class="font-medium text-gray-700">Description:</span>
+                            <p class="text-gray-600 mt-1" id="viewDescription"></p>
+                        </div>
+                        <div class="border-b pb-3">
+                            <span class="font-medium text-gray-700">Music URL:</span>
+                            <p class="text-gray-600 mt-1 break-all" id="viewUrl"></p>
+                        </div>
+                        <div class="border-b pb-3">
+                            <span class="font-medium text-gray-700">Created Date:</span>
+                            <p class="text-gray-600 mt-1" id="viewDate"></p>
+                        </div>
+                        <div class="pt-2">
+                            <span class="font-medium text-gray-700">Preview:</span>
+                            <audio id="audioPlayer" controls class="w-full mt-2">
+                                Your browser does not support the audio element.
+                            </audio>
+                        </div>
+                    </div>
+                    <button id="closeViewBtn" type="button"
+                        class="mt-6 w-full px-6 py-2 text-white rounded-lg shadow-lg hover:shadow-xl transition-all"
+                        style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                // Helper: Get token from localStorage
+                function getTokenFromCookie() {
+                    try {
+                        const token = localStorage.getItem('token');
+                        if (token) {
+                            return JSON.parse(token);
+                        }
+                        const cookies = document.cookie.split(';');
+                        for (let cookie of cookies) {
+                            const [name, value] = cookie.trim().split('=');
+                            if (name === 'token') {
+                                return value;
+                            }
+                        }
+                        return null;
+                    } catch (error) {
+                        console.error('Error getting token:', error);
+                        return null;
+                    }
+                }
+
+                const token = getTokenFromCookie();
+                if (!token) {
+                    alert('Authentication required. Please login.');
+                    window.location.href = '/login';
+                    return;
+                }
+
+                // DOM Elements
+                const totalMusicEl = document.getElementById('totalMusic');
+                const freeMusicEl = document.getElementById('freeMusic');
+                const premiumMusicEl = document.getElementById('premiumMusic');
+                const musicTableBody = document.getElementById('musicTableBody');
+                const pageInfo = document.getElementById('pageInfo');
+                const prevPageBtn = document.getElementById('prevPage');
+                const nextPageBtn = document.getElementById('nextPage');
+                const searchInput = document.getElementById('searchInput');
+                const categoryFilter = document.getElementById('categoryFilter');
+                const statusFilter = document.getElementById('statusFilter');
+
+                // Modal Elements
+                const addMusicBtn = document.getElementById('addMusicBtn');
+                const musicModal = document.getElementById('musicModal');
+                const closeModal = document.getElementById('closeModal');
+                const cancelBtn = document.getElementById('cancelBtn');
+                const musicForm = document.getElementById('musicForm');
+                const viewModal = document.getElementById('viewModal');
+                const closeViewModal = document.getElementById('closeViewModal');
+                const closeViewBtn = document.getElementById('closeViewBtn');
+
+                // Pagination
+                let currentPage = 1;
+                let totalPages = 1;
+                const limit = 10;
+
+                // Fetch Categories for Dropdown
+                async function fetchCategories() {
+                    try {
+                        const res = await fetch('/api/category/all', {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            const categorySelect = document.getElementById('musicCategory');
+                            const categoryFilterSelect = document.getElementById('categoryFilter');
+
+                            categorySelect.innerHTML = '<option value="">Select Category</option>';
+                            categoryFilterSelect.innerHTML = '<option value="">All Categories</option>';
+
+                            data.data.forEach(cat => {
+                                categorySelect.innerHTML += `<option value="${cat._id}">${cat.name}</option>`;
+                                categoryFilterSelect.innerHTML += `<option value="${cat._id}">${cat.name}</option>`;
+                            });
+                        }
+                    } catch (error) {
+                        console.error('Error fetching categories:', error);
+                    }
+                }
+
+                // Fetch Music
+                async function fetchMusic(page = 1) {
+                    const search = searchInput.value.trim();
+                    const categoryId = categoryFilter.value;
+                    const isPremium = statusFilter.value;
+
+                    let url = `/api/music/all?page=${page}&limit=${limit}`;
+                    if (search) url += `&search=${encodeURIComponent(search)}`;
+                    if (categoryId) url += `&categoryId=${categoryId}`;
+                    if (isPremium) url += `&isPremium=${isPremium}`;
+
+                    try {
+                        const res = await fetch(url, {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        const data = await res.json();
+
+                        if (data.success) {
+                            // Update Stats
+                            totalMusicEl.textContent = data.stats.total || 0;
+                            freeMusicEl.textContent = data.stats.free || 0;
+                            premiumMusicEl.textContent = data.stats.premium || 0;
+
+                            // Populate Table
+                            musicTableBody.innerHTML = '';
+                            if (data.data.length === 0) {
+                                musicTableBody.innerHTML = `
+                                    <tr>
+                                        <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                                            <i class="fas fa-music text-4xl mb-2"></i>
+                                            <p>No music found</p>
+                                        </td>
+                                    </tr>`;
+                            } else {
+                                data.data.forEach((music, index) => {
+                                    const tr = document.createElement('tr');
+                                    tr.className = 'table-row';
+                                    tr.innerHTML = `
+                                        <td class="px-6 py-4 text-sm">${(page - 1) * limit + index + 1}</td>
+                                        <td class="px-6 py-4 text-sm font-medium">${music.title}</td>
+                                        <td class="px-6 py-4 text-sm text-gray-600">${music.category?.name || 'N/A'}</td>
+                                        <td class="px-6 py-4 text-sm">
+                                            <span class="${music.isPremium ? 'badge-premium' : 'badge-free'} px-3 py-1 rounded-full text-white text-xs font-semibold">
+                                                <i class="fas fa-${music.isPremium ? 'crown' : 'gift'} mr-1"></i>${music.isPremium ? 'Premium' : 'Free'}
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm">${new Date(music.createdAt).toLocaleDateString()}</td>
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center justify-center space-x-2">
+                                                <button onclick="viewMusic('${music._id}')"
+                                                    class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                                                    title="View">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button onclick="editMusic('${music._id}')"
+                                                    class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-all"
+                                                    title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button onclick="toggleStatus('${music._id}', ${music.isPremium})"
+                                                    class="p-2 text-yellow-600 hover:bg-yellow-50 rounded-lg transition-all"
+                                                    title="Toggle Status">
+                                                    <i class="fas fa-${music.isPremium ? 'lock-open' : 'lock'}"></i>
+                                                </button>
+                                                <button onclick="deleteMusic('${music._id}')"
+                                                    class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                                                    title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>`;
+                                    musicTableBody.appendChild(tr);
+                                });
+                            }
+
+                            // Update Pagination
+                            currentPage = data.pagination.page;
+                            totalPages = data.pagination.totalPages;
+                            pageInfo.textContent = `Page ${currentPage} of ${totalPages} (${data.pagination.totalItems} total)`;
+                            prevPageBtn.disabled = !data.pagination.hasPrev;
+                            nextPageBtn.disabled = !data.pagination.hasNext;
+                        }
+                    } catch (error) {
+                        console.error('Error fetching music:', error);
+                        alert('Failed to load music');
+                    }
+                }
+
+                // View Music
+                window.viewMusic = async (id) => {
+                    try {
+                        const res = await fetch(`/api/music/${id}`, {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            const music = data.data;
+                            document.getElementById('viewTitle').textContent = music.title;
+                            document.getElementById('viewCategory').textContent = music.category?.name || 'N/A';
+                            document.getElementById('viewStatus').innerHTML = `
+                                <span class="${music.isPremium ? 'badge-premium' : 'badge-free'} px-3 py-1 rounded-full text-white text-xs font-semibold">
+                                    <i class="fas fa-${music.isPremium ? 'crown' : 'gift'} mr-1"></i>${music.isPremium ? 'Premium' : 'Free'}
+                                </span>`;
+                            document.getElementById('viewDescription').textContent = music.description || 'No description';
+                            document.getElementById('viewUrl').textContent = music.url;
+                            document.getElementById('viewDate').textContent = new Date(music.createdAt).toLocaleDateString();
+                            document.getElementById('audioPlayer').src = music.url;
+                            viewModal.classList.add('show');
+                        }
+                    } catch (error) {
+                        console.error('Error viewing music:', error);
+                        alert('Failed to load music details');
+                    }
+                };
+
+                // Edit Music
+                window.editMusic = async (id) => {
+                    try {
+                        const res = await fetch(`/api/music/${id}`, {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            const music = data.data;
+                            document.getElementById('modalTitle').textContent = 'Edit Music';
+                            document.getElementById('musicId').value = music._id;
+                            document.getElementById('musicTitle').value = music.title;
+                            document.getElementById('musicUrl').value = music.url;
+                            document.getElementById('musicCategory').value = music.category?._id || '';
+                            document.getElementById('musicDescription').value = music.description || '';
+                            document.getElementById('musicPremium').checked = music.isPremium;
+                            musicModal.classList.add('show');
+                        }
+                    } catch (error) {
+                        console.error('Error loading music:', error);
+                        alert('Failed to load music for editing');
+                    }
+                };
+
+                // Toggle Status
+                window.toggleStatus = async (id, currentStatus) => {
+                    if (!confirm(`Change status to ${currentStatus ? 'Free' : 'Premium'}?`)) return;
+                    try {
+                        const res = await fetch(`/api/music/${id}/toggle-status`, {
+                            method: 'PATCH',
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            }
+                        });
+                        const data = await res.json();
+                        if (res.ok) {
+                            alert('Status updated successfully!');
+                            fetchMusic(currentPage);
+                        } else {
+                            alert(data.message || 'Failed to update status');
+                        }
+                    } catch (error) {
+                        console.error('Toggle status failed:', error);
+                        alert('Failed to update status');
+                    }
+                };
+
+                // Delete Music
+                window.deleteMusic = async (id) => {
+                    if (!confirm('Are you sure you want to delete this music?')) return;
+                    try {
+                        const res = await fetch(`/api/music/${id}`, {
+                            method: 'DELETE',
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        const data = await res.json();
+                        if (res.ok) {
+                            alert('Music deleted successfully!');
+                            fetchMusic(currentPage);
+                        } else {
+                            alert(data.message || 'Failed to delete music');
+                        }
+                    } catch (error) {
+                        console.error('Delete failed:', error);
+                        alert('Failed to delete music');
+                    }
+                };
+
+                // Add Music Modal
+                addMusicBtn.addEventListener('click', () => {
+                    musicModal.classList.add('show');
+                    document.getElementById('modalTitle').textContent = 'Upload New Music';
+                    musicForm.reset();
+                    document.getElementById('musicId').value = '';
+                });
+
+                // Close Modals
+                [closeModal, cancelBtn].forEach(btn => {
+                    btn.addEventListener('click', () => musicModal.classList.remove('show'));
+                });
+                [closeViewModal, closeViewBtn].forEach(btn => {
+                    btn.addEventListener('click', () => viewModal.classList.remove('show'));
+                });
+
+                // Submit Form (Add / Edit)
+                musicForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const musicId = document.getElementById('musicId').value;
+                    const title = document.getElementById('musicTitle').value.trim();
+                    const url = document.getElementById('musicUrl').value.trim();
+                    const category = document.getElementById('musicCategory').value;
+                    const description = document.getElementById('musicDescription').value.trim();
+                    const isPremium = document.getElementById('musicPremium').checked;
+
+                    if (!title || !url || !category) {
+                        alert('Please fill in all required fields');
+                        return;
+                    }
+
+                    const payload = { title, url, category, description, isPremium };
+                    const method = musicId ? 'PUT' : 'POST';
+                    const endpoint = musicId ? `/api/music/${musicId}` : '/api/music/upload';
+
+                    try {
+                        const res = await fetch(endpoint, {
+                            method,
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify(payload)
+                        });
+
+                        const data = await res.json();
+                        if (res.ok) {
+                            alert(musicId ? 'Music updated successfully!' : 'Music uploaded successfully!');
+                            musicModal.classList.remove('show');
+                            fetchMusic(currentPage);
+                        } else {
+                            alert(data.message || 'Operation failed');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Something went wrong');
+                    }
+                });
+
+                // Pagination
+                prevPageBtn.addEventListener('click', () => {
+                    if (currentPage > 1) fetchMusic(currentPage - 1);
+                });
+                nextPageBtn.addEventListener('click', () => {
+                    if (currentPage < totalPages) fetchMusic(currentPage + 1);
+                });
+
+                // Filters
+                [searchInput, categoryFilter, statusFilter].forEach(el => {
+                    el.addEventListener('input', () => fetchMusic(1));
+                    el.addEventListener('change', () => fetchMusic(1));
+                });
+
+                // Initial Load
+                fetchCategories();
+                fetchMusic();
+            });
+        </script>
 
 </body>
 

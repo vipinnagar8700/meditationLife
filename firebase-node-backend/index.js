@@ -19,8 +19,17 @@ app.set('view engine', 'ejs');
 // Routes
 const adminRoutes = require('./routes/authRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
+const musicRoutes = require('./routes/musicRoutes');
+const featuredSectionRoutes = require('./routes/featured-sectionRoutes');
+const settingRoutes = require('./routes/settingRoutes');
+const moodRoutes = require('./routes/moodRoutes');
+
 app.use('/api/user', adminRoutes);
 app.use('/api/category', categoryRoutes);
+app.use('/api/music', musicRoutes);
+app.use('/api/featured', featuredSectionRoutes);
+app.use('/api/settings', settingRoutes);
+app.use("/api", moodRoutes)
 
 // Home / Login page
 app.get('/', (req, res) => {
@@ -62,6 +71,27 @@ app.get('/admin/music', async (req, res) => {
         const users = await User.find().select('-password').sort({ createdAt: -1 });
 
         res.render('music', {
+            user: currentUser,
+            users: users
+        });
+    } catch (err) {
+        console.error('Error fetching users:', err);
+        res.redirect('/admin/dashboard');
+    }
+});
+
+
+
+// App Featured Section  Page
+app.get('/admin/featured-section', async (req, res) => {
+    try {
+        const currentUser = req.cookies.user ? JSON.parse(req.cookies.user) : null;
+        if (!currentUser) return res.redirect('/');
+
+        // Fetch all users from database
+        const users = await User.find().select('-password').sort({ createdAt: -1 });
+
+        res.render('featured-section', {
             user: currentUser,
             users: users
         });
@@ -167,6 +197,26 @@ app.get('/admin/mood', async (req, res) => {
     }
 });
 
+
+// Profile Management Page
+app.get('/admin/profile', async (req, res) => {
+    try {
+        const currentUser = req.cookies.user ? JSON.parse(req.cookies.user) : null;
+        if (!currentUser) return res.redirect('/');
+
+        // Fetch all users from database
+        const users = await User.find().select('-password').sort({ createdAt: -1 });
+
+        res.render('profile', {
+            user: currentUser,
+            users: users
+        });
+    } catch (err) {
+        console.error('Error fetching users:', err);
+        res.redirect('/admin/dashboard');
+    }
+});
+
 // Logout
 app.get('/logout', (req, res) => {
     res.clearCookie('token');
@@ -174,69 +224,8 @@ app.get('/logout', (req, res) => {
     res.redirect('/');
 });
 
-// Admin Login POST
-app.post('/admin/login', async (req, res) => {
-    try {
-        const { email, password } = req.body;
 
-        if (!email || !password) {
-            return res.render('login', {
-                error: 'Email and password are required',
-                success: null
-            });
-        }
 
-        const admin = await User.findOne({ email, role: 'admin' });
-
-        if (!admin) {
-            return res.render('login', {
-                error: 'Not an admin or invalid email',
-                success: null
-            });
-        }
-
-        const valid = await bcrypt.compare(password, admin.password);
-
-        if (!valid) {
-            return res.render('login', {
-                error: 'Invalid password',
-                success: null
-            });
-        }
-
-        // Generate JWT token
-        const token = jwt.sign(
-            { id: admin._id, role: admin.role },
-            process.env.JWT_SECRET,
-            { expiresIn: '7d' }
-        );
-
-        // Set cookies
-        res.cookie('token', token, {
-            httpOnly: true,
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-            secure: process.env.NODE_ENV === 'production' // ✅ Added security
-        });
-
-        res.cookie('user', JSON.stringify({
-            id: admin._id,
-            name: admin.name,
-            email: admin.email
-        }), {
-            maxAge: 7 * 24 * 60 * 60 * 1000
-        });
-
-        // Redirect to dashboard
-        res.redirect('/admin/dashboard');
-
-    } catch (err) {
-        console.error('Login error:', err);
-        res.render('login', {
-            error: 'Server error occurred',
-            success: null
-        });
-    }
-});
 
 // Swagger
 swaggerDocs(app);

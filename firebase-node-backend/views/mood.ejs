@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Users Management - Admin Dashboard</title>
+    <title>Mood Tracking - Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -38,12 +38,12 @@
             color: white;
         }
 
-        .badge-admin {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .badge-active {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
         }
 
-        .badge-user {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        .badge-inactive {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
         }
 
         .table-row:hover {
@@ -51,14 +51,192 @@
             transform: scale(1.01);
             transition: all 0.2s ease;
         }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 50;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal.show {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 1rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideDown 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .icon-preview {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .mood-card {
+            transition: all 0.3s ease;
+        }
+
+        .mood-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .mood-icon {
+            font-size: 2rem;
+        }
+
+        .mood-happy {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            color: #92400e;
+        }
+
+        .mood-calm {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            color: #1e3a8a;
+        }
+
+        .mood-natural {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #065f46;
+        }
+
+        .mood-anxiety {
+            background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+            color: #831843;
+        }
+
+        .mood-angry {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #991b1b;
+        }
+
+        .mood-sad {
+            background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+            color: #3730a3;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 50;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal.show {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 1rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideDown 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 2rem;
+            padding-bottom: 2rem;
+        }
+
+        .timeline-item:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e5e7eb;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -6px;
+            top: 0;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 0 0 2px #e5e7eb;
+        }
     </style>
 </head>
 
 <body class="bg-gray-100">
     <!-- Header -->
     <%- include('./layout/header') %>
+
         <div class="flex pt-16">
-            <!-- Sidebar Component -->
+            <!-- Sidebar -->
             <%- include('./layout/sidebar') %>
 
                 <!-- Main Content -->
@@ -66,28 +244,26 @@
                     <!-- Header Section -->
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
                         <div>
-                            <h2 class="text-3xl font-bold text-gray-800 mb-2">Mood Management</h2>
-                            <p class="text-gray-600">Manage all users and their permissions</p>
+                            <h2 class="text-3xl font-bold text-gray-800 mb-2">Mood Tracking</h2>
+                            <p class="text-gray-600">Track and monitor your daily mood patterns</p>
                         </div>
-                        <button
+                        <button id="logMoodBtn"
                             class="mt-4 md:mt-0 px-6 py-3 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all"
                             style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                            <i class="fas fa-user-plus mr-2"></i>Add New User
+                            <i class="fas fa-plus mr-2"></i>Log Mood
                         </button>
                     </div>
 
-                    <!-- Stats Cards -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <!-- Statistics Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                         <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-purple-500">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="text-gray-500 text-sm font-medium mb-1">Total Users</p>
-                                    <h3 class="text-2xl font-bold text-gray-800">
-                                        <%= users.length %>
-                                    </h3>
+                                    <p class="text-gray-500 text-sm font-medium mb-1">Total Entries</p>
+                                    <h3 class="text-2xl font-bold text-gray-800" id="totalEntries">0</h3>
                                 </div>
                                 <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                                    <i class="fas fa-users text-purple-500 text-xl"></i>
+                                    <i class="fas fa-chart-line text-purple-500 text-xl"></i>
                                 </div>
                             </div>
                         </div>
@@ -95,13 +271,11 @@
                         <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="text-gray-500 text-sm font-medium mb-1">Admin Users</p>
-                                    <h3 class="text-2xl font-bold text-gray-800">
-                                        <%= users.filter(u=> u.role === 'admin').length %>
-                                    </h3>
+                                    <p class="text-gray-500 text-sm font-medium mb-1">This Month</p>
+                                    <h3 class="text-2xl font-bold text-gray-800" id="monthEntries">0</h3>
                                 </div>
                                 <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                                    <i class="fas fa-user-shield text-blue-500 text-xl"></i>
+                                    <i class="fas fa-calendar-alt text-blue-500 text-xl"></i>
                                 </div>
                             </div>
                         </div>
@@ -109,135 +283,78 @@
                         <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="text-gray-500 text-sm font-medium mb-1">Regular Users</p>
-                                    <h3 class="text-2xl font-bold text-gray-800">
-                                        <%= users.filter(u=> u.role === 'user').length %>
-                                    </h3>
+                                    <p class="text-gray-500 text-sm font-medium mb-1">Most Common</p>
+                                    <h3 class="text-xl font-bold text-gray-800 capitalize" id="mostCommonMood">-</h3>
                                 </div>
                                 <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                                    <i class="fas fa-user text-green-500 text-xl"></i>
+                                    <i class="fas fa-smile text-green-500 text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-yellow-500">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500 text-sm font-medium mb-1">Streak</p>
+                                    <h3 class="text-2xl font-bold text-gray-800"><span id="currentStreak">0</span> days
+                                    </h3>
+                                </div>
+                                <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-fire text-yellow-500 text-xl"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Search and Filter -->
+                    <!-- Mood Distribution -->
+                    <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">Mood Distribution (Last 30 Days)</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4" id="moodDistribution">
+                            <!-- JavaScript will populate this -->
+                        </div>
+                    </div>
+
+                    <!-- Filter Section -->
                     <div class="bg-white rounded-xl shadow-md p-4 mb-6">
                         <div class="flex flex-col md:flex-row gap-4">
                             <div class="flex-1">
                                 <div class="relative">
                                     <i
                                         class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                                    <input type="text" id="searchInput" placeholder="Search by name or email..."
+                                    <input type="text" id="searchInput" placeholder="Search in notes..."
                                         class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none">
                                 </div>
                             </div>
-                            <select
-                                class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none">
-                                <option value="">All Roles</option>
-                                <option value="admin">Admin</option>
-                                <option value="user">User</option>
+                            <select id="moodFilter"
+                                class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none">
+                                <option value="">All Moods</option>
+                                <option value="happy">😊 Happy</option>
+                                <option value="calm">😌 Calm</option>
+                                <option value="natural">😐 Natural</option>
+                                <option value="anxiety">😰 Anxiety</option>
+                                <option value="angry">😠 Angry</option>
+                                <option value="sad">😢 Sad</option>
                             </select>
                         </div>
                     </div>
 
-                    <!-- Users Table -->
-                    <div class="bg-white rounded-xl shadow-md overflow-hidden">
-                        <div class="overflow-x-auto">
-                            <table class="w-full">
-                                <thead class="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
-                                    <tr>
-                                        <th class="px-6 py-4 text-left text-sm font-semibold">#</th>
-                                        <th class="px-6 py-4 text-left text-sm font-semibold">Name</th>
-                                        <th class="px-6 py-4 text-left text-sm font-semibold">Email</th>
-                                        <th class="px-6 py-4 text-left text-sm font-semibold">Role</th>
-                                        <th class="px-6 py-4 text-left text-sm font-semibold">Joined Date</th>
-                                        <th class="px-6 py-4 text-center text-sm font-semibold">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-200">
-                                    <% users.forEach((u, index)=> { %>
-                                        <tr class="table-row">
-                                            <td class="px-6 py-4 text-gray-700 font-medium">
-                                                <%= index + 1 %>
-                                            </td>
-                                            <td class="px-6 py-4">
-                                                <div class="flex items-center space-x-3">
-                                                    <div
-                                                        class="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold">
-                                                        <%= u.name.charAt(0).toUpperCase() %>
-                                                    </div>
-                                                    <span class="font-semibold text-gray-800">
-                                                        <%= u.name %>
-                                                    </span>
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4 text-gray-600">
-                                                <%= u.email %>
-                                            </td>
-                                            <td class="px-6 py-4">
-                                                <% if (u.role==='admin' ) { %>
-                                                    <span
-                                                        class="badge-admin px-3 py-1 rounded-full text-white text-xs font-semibold">
-                                                        <i class="fas fa-crown mr-1"></i>Admin
-                                                    </span>
-                                                    <% } else { %>
-                                                        <span
-                                                            class="badge-user px-3 py-1 rounded-full text-white text-xs font-semibold">
-                                                            <i class="fas fa-user mr-1"></i>User
-                                                        </span>
-                                                        <% } %>
-                                            </td>
-                                            <td class="px-6 py-4 text-gray-600">
-                                                <%= new Date(u.createdAt).toLocaleDateString('en-US', { year: 'numeric'
-                                                    , month: 'short' , day: 'numeric' }) %>
-                                            </td>
-                                            <td class="px-6 py-4">
-                                                <div class="flex items-center justify-center space-x-2">
-                                                    <button
-                                                        class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
-                                                        title="View">
-                                                        <i class="fas fa-eye"></i>
-                                                    </button>
-                                                    <button
-                                                        class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-all"
-                                                        title="Edit">
-                                                        <i class="fas fa-edit"></i>
-                                                    </button>
-                                                    <button
-                                                        class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                                                        title="Delete">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <% }); %>
-                                </tbody>
-                            </table>
+                    <!-- Mood Timeline -->
+                    <div class="bg-white rounded-xl shadow-md p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-6">Mood History</h3>
+                        <div id="moodTimeline" class="space-y-4">
+                            <!-- JavaScript will populate this -->
                         </div>
 
                         <!-- Pagination -->
-                        <div class="flex items-center justify-between px-6 py-4 border-t border-gray-200">
-                            <p class="text-sm text-gray-600">
-                                Showing <span class="font-semibold">1</span> to <span class="font-semibold">
-                                    <%= users.length %>
-                                </span> of <span class="font-semibold">
-                                    <%= users.length %>
-                                </span> results
-                            </p>
+                        <div class="flex items-center justify-between pt-6 border-t border-gray-200 mt-6">
+                            <p class="text-sm text-gray-600" id="pageInfo">Loading...</p>
                             <div class="flex space-x-2">
-                                <button
-                                    class="px-4 py-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 disabled:opacity-50"
-                                    disabled>
+                                <button id="prevPage"
+                                    class="px-4 py-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
                                     <i class="fas fa-chevron-left"></i>
                                 </button>
-                                <button class="px-4 py-2 text-white rounded-lg"
-                                    style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                                    1
-                                </button>
-                                <button
-                                    class="px-4 py-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50">
+                                <button id="nextPage"
+                                    class="px-4 py-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
                                     <i class="fas fa-chevron-right"></i>
                                 </button>
                             </div>
@@ -246,42 +363,631 @@
                 </main>
         </div>
 
-        <!-- Mobile Overlay -->
-        <div id="overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"></div>
+        <!-- Log Mood Modal -->
+        <div id="logMoodModal" class="modal">
+            <div class="modal-content p-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-bold text-gray-800">Log Your Mood</h3>
+                    <button id="closeLogModal" class="text-gray-400 hover:text-gray-600 text-2xl">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <form id="logMoodForm">
+                    <div class="mb-6">
+                        <label class="block text-gray-700 font-semibold mb-3">How are you feeling?</label>
+                        <div class="grid grid-cols-3 gap-4">
+                            <label class="mood-card mood-happy p-4 rounded-lg cursor-pointer text-center">
+                                <input type="radio" name="moodLevel" value="happy" class="hidden" required>
+                                <div class="mood-icon">😊</div>
+                                <p class="font-semibold mt-2">Happy</p>
+                            </label>
+                            <label class="mood-card mood-calm p-4 rounded-lg cursor-pointer text-center">
+                                <input type="radio" name="moodLevel" value="calm" class="hidden">
+                                <div class="mood-icon">😌</div>
+                                <p class="font-semibold mt-2">Calm</p>
+                            </label>
+                            <label class="mood-card mood-natural p-4 rounded-lg cursor-pointer text-center">
+                                <input type="radio" name="moodLevel" value="natural" class="hidden">
+                                <div class="mood-icon">😐</div>
+                                <p class="font-semibold mt-2">Natural</p>
+                            </label>
+                            <label class="mood-card mood-anxiety p-4 rounded-lg cursor-pointer text-center">
+                                <input type="radio" name="moodLevel" value="anxiety" class="hidden">
+                                <div class="mood-icon">😰</div>
+                                <p class="font-semibold mt-2">Anxiety</p>
+                            </label>
+                            <label class="mood-card mood-angry p-4 rounded-lg cursor-pointer text-center">
+                                <input type="radio" name="moodLevel" value="angry" class="hidden">
+                                <div class="mood-icon">😠</div>
+                                <p class="font-semibold mt-2">Angry</p>
+                            </label>
+                            <label class="mood-card mood-sad p-4 rounded-lg cursor-pointer text-center">
+                                <input type="radio" name="moodLevel" value="sad" class="hidden">
+                                <div class="mood-icon">😢</div>
+                                <p class="font-semibold mt-2">Sad</p>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-gray-700 font-semibold mb-2">Add a Note (Optional)</label>
+                        <textarea name="moodNote" rows="3"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
+                            placeholder="What's on your mind?"></textarea>
+                    </div>
+
+                    <div class="flex gap-3">
+                        <button type="submit"
+                            class="flex-1 px-6 py-3 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all"
+                            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <i class="fas fa-save mr-2"></i>Save Mood
+                        </button>
+                        <button type="button" id="cancelLogModal"
+                            class="px-6 py-3 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-all">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Edit Mood Modal -->
+        <div id="editMoodModal" class="modal">
+            <div class="modal-content p-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-bold text-gray-800">Edit Mood Entry</h3>
+                    <button id="closeEditModal" class="text-gray-400 hover:text-gray-600 text-2xl">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <form id="editMoodForm">
+                    <input type="hidden" id="editMoodId">
+
+                    <div class="mb-6">
+                        <label class="block text-gray-700 font-semibold mb-3">Update Mood</label>
+                        <div class="grid grid-cols-3 gap-4">
+                            <label class="mood-card mood-happy p-4 rounded-lg cursor-pointer text-center">
+                                <input type="radio" name="editMoodLevel" value="happy" class="hidden" required>
+                                <div class="mood-icon">😊</div>
+                                <p class="font-semibold mt-2">Happy</p>
+                            </label>
+                            <label class="mood-card mood-calm p-4 rounded-lg cursor-pointer text-center">
+                                <input type="radio" name="editMoodLevel" value="calm" class="hidden">
+                                <div class="mood-icon">😌</div>
+                                <p class="font-semibold mt-2">Calm</p>
+                            </label>
+                            <label class="mood-card mood-natural p-4 rounded-lg cursor-pointer text-center">
+                                <input type="radio" name="editMoodLevel" value="natural" class="hidden">
+                                <div class="mood-icon">😐</div>
+                                <p class="font-semibold mt-2">Natural</p>
+                            </label>
+                            <label class="mood-card mood-anxiety p-4 rounded-lg cursor-pointer text-center">
+                                <input type="radio" name="editMoodLevel" value="anxiety" class="hidden">
+                                <div class="mood-icon">😰</div>
+                                <p class="font-semibold mt-2">Anxiety</p>
+                            </label>
+                            <label class="mood-card mood-angry p-4 rounded-lg cursor-pointer text-center">
+                                <input type="radio" name="editMoodLevel" value="angry" class="hidden">
+                                <div class="mood-icon">😠</div>
+                                <p class="font-semibold mt-2">Angry</p>
+                            </label>
+                            <label class="mood-card mood-sad p-4 rounded-lg cursor-pointer text-center">
+                                <input type="radio" name="editMoodLevel" value="sad" class="hidden">
+                                <div class="mood-icon">😢</div>
+                                <p class="font-semibold mt-2">Sad</p>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-gray-700 font-semibold mb-2">Update Note</label>
+                        <textarea id="editMoodNote" rows="3"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
+                            placeholder="What's on your mind?"></textarea>
+                    </div>
+
+                    <div class="flex gap-3">
+                        <button type="submit"
+                            class="flex-1 px-6 py-3 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all"
+                            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <i class="fas fa-save mr-2"></i>Update Mood
+                        </button>
+                        <button type="button" id="cancelEditModal"
+                            class="px-6 py-3 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-all">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
 
         <script>
-            // Mobile menu toggle
-            const menuBtn = document.getElementById('menuBtn');
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('overlay');
+            function getTokenFromCookie() {
+                try {
+                    // First try to get from localStorage
+                    const token = localStorage.getItem('token');
+                    if (token) {
+                        return JSON.parse(token);
+                    }
 
-            menuBtn.addEventListener('click', () => {
-                sidebar.classList.toggle('hidden');
-                overlay.classList.toggle('hidden');
+                    // Fallback: try to get from cookies
+                    const cookies = document.cookie.split(';');
+                    for (let cookie of cookies) {
+                        const [name, value] = cookie.trim().split('=');
+                        if (name === 'token') {
+                            return value;
+                        }
+                    }
+
+                    return null;
+                } catch (error) {
+                    console.error('Error getting token:', error);
+                    return null;
+                }
+            }
+            const token = getTokenFromCookie();
+
+            const API_BASE = '/api';
+            let currentPage = 1;
+            let totalPages = 1;
+
+            // Mood icons and colors mapping
+            const moodConfig = {
+                happy: { icon: '😊', color: 'bg-yellow-100 text-yellow-800', class: 'mood-happy' },
+                calm: { icon: '😌', color: 'bg-blue-100 text-blue-800', class: 'mood-calm' },
+                natural: { icon: '😐', color: 'bg-green-100 text-green-800', class: 'mood-natural' },
+                anxiety: { icon: '😰', color: 'bg-pink-100 text-pink-800', class: 'mood-anxiety' },
+                angry: { icon: '😠', color: 'bg-red-100 text-red-800', class: 'mood-angry' },
+                sad: { icon: '😢', color: 'bg-indigo-100 text-indigo-800', class: 'mood-sad' }
+            };
+
+            // Load initial data
+            document.addEventListener('DOMContentLoaded', () => {
+                loadMoodData();
+                loadStatistics();
+                setupEventListeners();
             });
 
-            overlay.addEventListener('click', () => {
-                sidebar.classList.add('hidden');
-                overlay.classList.add('hidden');
-            });
+            // Setup event listeners
+            function setupEventListeners() {
+                document.getElementById('logMoodBtn').addEventListener('click', () => {
+                    document.getElementById('logMoodModal').classList.add('show');
+                });
 
-            // Search functionality
-            const searchInput = document.getElementById('searchInput');
-            searchInput.addEventListener('keyup', function () {
-                const filter = this.value.toLowerCase();
-                const rows = document.querySelectorAll('.table-row');
+                document.getElementById('closeLogModal').addEventListener('click', closeLogModal);
+                document.getElementById('cancelLogModal').addEventListener('click', closeLogModal);
 
-                rows.forEach(row => {
-                    const name = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
-                    const email = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+                document.getElementById('closeEditModal').addEventListener('click', closeEditModal);
+                document.getElementById('cancelEditModal').addEventListener('click', closeEditModal);
 
-                    if (name.includes(filter) || email.includes(filter)) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
+                document.getElementById('logMoodForm').addEventListener('submit', handleLogMood);
+                document.getElementById('editMoodForm').addEventListener('submit', handleEditMood);
+
+                document.getElementById('searchInput').addEventListener('input', debounce(loadMoodData, 500));
+                document.getElementById('moodFilter').addEventListener('change', loadMoodData);
+
+                document.getElementById('prevPage').addEventListener('click', () => {
+                    if (currentPage > 1) {
+                        currentPage--;
+                        loadMoodData();
                     }
                 });
-            });
+
+                document.getElementById('nextPage').addEventListener('click', () => {
+                    if (currentPage < totalPages) {
+                        currentPage++;
+                        loadMoodData();
+                    }
+                });
+
+                // Mood card selection styling
+                document.querySelectorAll('input[name="moodLevel"]').forEach(radio => {
+                    radio.addEventListener('change', (e) => {
+                        document.querySelectorAll('input[name="moodLevel"]').forEach(r => {
+                            r.parentElement.style.border = '2px solid transparent';
+                            r.parentElement.style.transform = 'scale(1)';
+                        });
+                        e.target.parentElement.style.border = '2px solid #667eea';
+                        e.target.parentElement.style.transform = 'scale(1.05)';
+                    });
+                });
+
+                document.querySelectorAll('input[name="editMoodLevel"]').forEach(radio => {
+                    radio.addEventListener('change', (e) => {
+                        document.querySelectorAll('input[name="editMoodLevel"]').forEach(r => {
+                            r.parentElement.style.border = '2px solid transparent';
+                            r.parentElement.style.transform = 'scale(1)';
+                        });
+                        e.target.parentElement.style.border = '2px solid #667eea';
+                        e.target.parentElement.style.transform = 'scale(1.05)';
+                    });
+                });
+            }
+
+            // Load mood data
+            async function loadMoodData() {
+                try {
+                    const search = document.getElementById('searchInput').value;
+                    const moodLevel = document.getElementById('moodFilter').value;
+
+                    const params = new URLSearchParams({
+                        page: currentPage,
+                        limit: 10
+                    });
+
+                    if (moodLevel) params.append('moodLevel', moodLevel);
+
+                    const response = await fetch(`${API_BASE}/mood/history?${params}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        displayMoodTimeline(data.data, search);
+                        updatePagination(data.pagination);
+                    }
+                } catch (error) {
+                    console.error('Error loading mood data:', error);
+                    showNotification('Failed to load mood data', 'error');
+                }
+            }
+
+            // Load statistics
+            async function loadStatistics() {
+                try {
+                    const [statsRes, distRes] = await Promise.all([
+                        fetch(`${API_BASE}/mood/stats?days=30`, {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        }),
+                        fetch(`${API_BASE}/mood/history?limit=100`, {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        })
+                    ]);
+
+                    const statsData = await statsRes.json();
+                    const distData = await distRes.json();
+
+                    if (statsData.success) {
+                        document.getElementById('totalEntries').textContent = statsData.stats.total;
+                        document.getElementById('monthEntries').textContent = statsData.stats.recentEntries;
+                        document.getElementById('mostCommonMood').textContent =
+                            statsData.stats.mostCommonMood ? statsData.stats.mostCommonMood.mood : '-';
+
+                        displayMoodDistribution(statsData.stats.distribution);
+                    }
+
+                    if (distData.success) {
+                        calculateStreak(distData.data);
+                    }
+                } catch (error) {
+                    console.error('Error loading statistics:', error);
+                }
+            }
+
+            // Display mood distribution
+            function displayMoodDistribution(distribution) {
+                const container = document.getElementById('moodDistribution');
+                const total = distribution.reduce((sum, item) => sum + item.count, 0);
+
+                container.innerHTML = Object.keys(moodConfig).map(mood => {
+                    const item = distribution.find(d => d._id === mood);
+                    const count = item ? item.count : 0;
+                    const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
+                    const config = moodConfig[mood];
+
+                    return `
+                    <div class="text-center p-4 rounded-lg ${config.class}">
+                        <div class="text-3xl mb-2">${config.icon}</div>
+                        <p class="font-semibold capitalize">${mood}</p>
+                        <p class="text-2xl font-bold mt-1">${count}</p>
+                        <p class="text-sm mt-1">${percentage}%</p>
+                    </div>
+                `;
+                }).join('');
+            }
+
+            // Display mood timeline
+            function displayMoodTimeline(moods, searchTerm = '') {
+                const timeline = document.getElementById('moodTimeline');
+
+                let filteredMoods = moods;
+                if (searchTerm) {
+                    filteredMoods = moods.filter(mood =>
+                        mood.moodNote?.toLowerCase().includes(searchTerm.toLowerCase())
+                    );
+                }
+
+                if (filteredMoods.length === 0) {
+                    timeline.innerHTML = `
+                    <div class="text-center py-12 text-gray-500">
+                        <i class="fas fa-inbox text-4xl mb-4"></i>
+                        <p>No mood entries found</p>
+                    </div>
+                `;
+                    return;
+                }
+
+                timeline.innerHTML = filteredMoods.map(mood => {
+                    const config = moodConfig[mood.moodLevel];
+                    const date = new Date(mood.date);
+
+                    return `
+                    <div class="timeline-item">
+                        <div class="timeline-dot ${config.color}"></div>
+                        <div class="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-all">
+                            <div class="flex items-start justify-between mb-2">
+                                <div class="flex items-center space-x-3">
+                                    <span class="text-3xl">${config.icon}</span>
+                                    <div>
+                                        <h4 class="font-bold text-gray-800 capitalize">${mood.moodLevel}</h4>
+                                        <p class="text-sm text-gray-500">
+                                            ${date.toLocaleDateString('en-US', {
+                        weekday: 'short',
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    })}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button onclick="editMood('${mood._id}')" 
+                                        class="text-blue-500 hover:text-blue-700 p-2">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button onclick="deleteMood('${mood._id}')" 
+                                        class="text-red-500 hover:text-red-700 p-2">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            ${mood.moodNote ? `
+                                <p class="text-gray-600 mt-2 pl-12">${mood.moodNote}</p>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+                }).join('');
+            }
+
+            // Calculate streak
+            function calculateStreak(moods) {
+                let streak = 0;
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                for (let i = 0; i < 365; i++) {
+                    const checkDate = new Date(today);
+                    checkDate.setDate(checkDate.getDate() - i);
+
+                    const hasEntry = moods.some(mood => {
+                        const moodDate = new Date(mood.date);
+                        moodDate.setHours(0, 0, 0, 0);
+                        return moodDate.getTime() === checkDate.getTime();
+                    });
+
+                    if (hasEntry) {
+                        streak++;
+                    } else if (i > 0) {
+                        break;
+                    }
+                }
+
+                document.getElementById('currentStreak').textContent = streak;
+            }
+
+            // Handle log mood
+            async function handleLogMood(e) {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+
+                try {
+                    const response = await fetch(`${API_BASE}/mood/log`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            moodLevel: formData.get('moodLevel'),
+                            moodNote: formData.get('moodNote')
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        showNotification('Mood logged successfully!', 'success');
+                        closeLogModal();
+                        loadMoodData();
+                        loadStatistics();
+                        e.target.reset();
+                    } else {
+                        showNotification(data.message || 'Failed to log mood', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error logging mood:', error);
+                    showNotification('Failed to log mood', 'error');
+                }
+            }
+
+            // Edit mood
+            async function editMood(id) {
+                try {
+                    const response = await fetch(`${API_BASE}/${id}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        const mood = data.data;
+                        document.getElementById('editMoodId').value = mood._id;
+                        document.getElementById('editMoodNote').value = mood.moodNote || '';
+
+                        // Select the mood radio button
+                        const radioBtn = document.querySelector(`input[name="editMoodLevel"][value="${mood.moodLevel}"]`);
+                        if (radioBtn) {
+                            radioBtn.checked = true;
+                            radioBtn.dispatchEvent(new Event('change'));
+                        }
+
+                        document.getElementById('editMoodModal').classList.add('show');
+                    } else {
+                        showNotification('Failed to load mood entry', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error loading mood entry:', error);
+                    showNotification('Failed to load mood entry', 'error');
+                }
+            }
+
+            // Handle edit mood
+            async function handleEditMood(e) {
+                e.preventDefault();
+                const id = document.getElementById('editMoodId').value;
+                const moodLevel = document.querySelector('input[name="editMoodLevel"]:checked').value;
+                const moodNote = document.getElementById('editMoodNote').value;
+
+                try {
+                    const response = await fetch(`${API_BASE}/${id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ moodLevel, moodNote })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        showNotification('Mood updated successfully!', 'success');
+                        closeEditModal();
+                        loadMoodData();
+                        loadStatistics();
+                    } else {
+                        showNotification(data.message || 'Failed to update mood', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error updating mood:', error);
+                    showNotification('Failed to update mood', 'error');
+                }
+            }
+
+            // Delete mood
+            async function deleteMood(id) {
+                if (!confirm('Are you sure you want to delete this mood entry?')) return;
+
+                try {
+                    const response = await fetch(`${API_BASE}/${id}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        showNotification('Mood entry deleted successfully!', 'success');
+                        loadMoodData();
+                        loadStatistics();
+                    } else {
+                        showNotification(data.message || 'Failed to delete mood', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error deleting mood:', error);
+                    showNotification('Failed to delete mood', 'error');
+                }
+            }
+
+            // Update pagination
+            function updatePagination(pagination) {
+                totalPages = pagination.totalPages;
+                currentPage = pagination.page;
+
+                document.getElementById('pageInfo').textContent =
+                    `Showing ${((pagination.page - 1) * pagination.limit) + 1}-${Math.min(pagination.page * pagination.limit, pagination.totalItems)} of ${pagination.totalItems} entries`;
+
+                document.getElementById('prevPage').disabled = currentPage === 1;
+                document.getElementById('nextPage').disabled = currentPage >= totalPages;
+            }
+
+            // Modal functions
+            function closeLogModal() {
+                document.getElementById('logMoodModal').classList.remove('show');
+                document.getElementById('logMoodForm').reset();
+                // Reset mood card borders
+                document.querySelectorAll('input[name="moodLevel"]').forEach(r => {
+                    r.parentElement.style.border = '2px solid transparent';
+                    r.parentElement.style.transform = 'scale(1)';
+                });
+            }
+
+            function closeEditModal() {
+                document.getElementById('editMoodModal').classList.remove('show');
+                document.getElementById('editMoodForm').reset();
+                // Reset mood card borders
+                document.querySelectorAll('input[name="editMoodLevel"]').forEach(r => {
+                    r.parentElement.style.border = '2px solid transparent';
+                    r.parentElement.style.transform = 'scale(1)';
+                });
+            }
+
+            // Utility functions
+            function debounce(func, wait) {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        func(...args);
+                    };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
+            }
+
+            function showNotification(message, type = 'info') {
+                const bgColors = {
+                    success: 'bg-green-500',
+                    error: 'bg-red-500',
+                    info: 'bg-blue-500'
+                };
+
+                const notification = document.createElement('div');
+                notification.className = `fixed top-20 right-4 ${bgColors[type]} text-white px-6 py-3 rounded-lg shadow-lg z-50 transform transition-all duration-300`;
+                notification.innerHTML = `
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+
+                document.body.appendChild(notification);
+
+                setTimeout(() => {
+                    notification.style.opacity = '0';
+                    notification.style.transform = 'translateX(100%)';
+                    setTimeout(() => notification.remove(), 300);
+                }, 3000);
+            }
+
+            // Close modals on outside click
+            window.onclick = function (event) {
+                const logModal = document.getElementById('logMoodModal');
+                const editModal = document.getElementById('editMoodModal');
+
+                if (event.target === logModal) {
+                    closeLogModal();
+                }
+                if (event.target === editModal) {
+                    closeEditModal();
+                }
+            }
         </script>
 </body>
 

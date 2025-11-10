@@ -563,4 +563,241 @@ router.get('/admin/users/stats/summary', verifyToken, isAdmin, async (req, res) 
     }
 });
 
+
+// Add these routes to your existing userRoutes.js file
+
+/**
+ * @swagger
+ * tags:
+ *   name: Admin Profile
+ *   description: Admin profile management APIs
+ */
+
+/**
+ * @swagger
+ * /user/admin/profile:
+ *   get:
+ *     summary: Get admin profile
+ *     tags: [Admin Profile]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Admin profile fetched successfully
+ *       404:
+ *         description: Admin not found
+ */
+router.get('/admin/profile', verifyToken, isAdmin, async (req, res) => {
+    try {
+        const admin = await User.findById(req.user.id).select('-password');
+
+        if (!admin) {
+            return res.status(404).json({
+                success: false,
+                message: 'Admin not found'
+            });
+        }
+
+        res.json({
+            success: true,
+            data: admin
+        });
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            error: err.message
+        });
+    }
+});
+
+/**
+ * @swagger
+ * /user/admin/profile:
+ *   put:
+ *     summary: Update admin profile
+ *     tags: [Admin Profile]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: Admin Name
+ *               email:
+ *                 type: string
+ *                 example: admin@example.com
+ *               age:
+ *                 type: number
+ *                 example: 30
+ *               gender:
+ *                 type: string
+ *                 example: male
+ *     responses:
+ *       200:
+ *         description: Profile updated successfully
+ *       400:
+ *         description: Email already taken
+ *       404:
+ *         description: Admin not found
+ */
+router.put('/admin/profile', verifyToken, isAdmin, async (req, res) => {
+    try {
+        const { name, email, age, gender } = req.body;
+
+        const admin = await User.findById(req.user.id);
+        if (!admin) {
+            return res.status(404).json({
+                success: false,
+                message: 'Admin not found'
+            });
+        }
+
+        // Check if email is being changed and if it already exists
+        if (email && email !== admin.email) {
+            const emailExists = await User.findOne({ email });
+            if (emailExists) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Email already taken'
+                });
+            }
+        }
+
+        // Update only provided fields
+        const updates = {};
+        if (name) updates.name = name;
+        if (email) updates.email = email;
+        if (age) updates.age = age;
+        if (gender) updates.gender = gender;
+
+        const updatedAdmin = await User.findByIdAndUpdate(
+            req.user.id,
+            { $set: updates },
+            { new: true, runValidators: true }
+        ).select('-password');
+
+        res.json({
+            success: true,
+            message: 'Profile updated successfully',
+            data: updatedAdmin
+        });
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            error: err.message
+        });
+    }
+});
+
+/**
+ * @swagger
+ * /user/admin/profile/change-password:
+ *   put:
+ *     summary: Change admin password
+ *     tags: [Admin Profile]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - currentPassword
+ *               - newPassword
+ *             properties:
+ *               currentPassword:
+ *                 type: string
+ *                 example: OldPass@123
+ *               newPassword:
+ *                 type: string
+ *                 example: NewPass@123
+ *               confirmPassword:
+ *                 type: string
+ *                 example: NewPass@123
+ *     responses:
+ *       200:
+ *         description: Password changed successfully
+ *       400:
+ *         description: Invalid current password or passwords don't match
+ *       404:
+ *         description: Admin not found
+ */
+router.put('/admin/profile/change-password', verifyToken, isAdmin, async (req, res) => {
+    try {
+        const { currentPassword, newPassword, confirmPassword } = req.body;
+
+        // Validation
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({
+                success: false,
+                message: 'Current password and new password are required'
+            });
+        }
+
+        if (confirmPassword && newPassword !== confirmPassword) {
+            return res.status(400).json({
+                success: false,
+                message: 'New passwords do not match'
+            });
+        }
+
+        if (newPassword.length < 6) {
+            return res.status(400).json({
+                success: false,
+                message: 'New password must be at least 6 characters long'
+            });
+        }
+
+        // Find admin with password field
+        const admin = await User.findById(req.user.id);
+        if (!admin) {
+            return res.status(404).json({
+                success: false,
+                message: 'Admin not found'
+            });
+        }
+
+        // Verify current password
+        const isValidPassword = await bcrypt.compare(currentPassword, admin.password);
+        if (!isValidPassword) {
+            return res.status(400).json({
+                success: false,
+                message: 'Current password is incorrect'
+            });
+        }
+
+        // Check if new password is same as current
+        const isSamePassword = await bcrypt.compare(newPassword, admin.password);
+        if (isSamePassword) {
+            return res.status(400).json({
+                success: false,
+                message: 'New password must be different from current password'
+            });
+        }
+
+        // Hash new password and update
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        admin.password = hashedPassword;
+        await admin.save();
+
+        res.json({
+            success: true,
+            message: 'Password changed successfully'
+        });
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            error: err.message
+        });
+    }
+});
+
+
 module.exports = router;
