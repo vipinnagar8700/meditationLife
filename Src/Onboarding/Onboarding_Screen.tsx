@@ -1,9 +1,11 @@
 import { useNavigation } from '@react-navigation/native';
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { useRef, useState } from 'react';
 import {
     Dimensions,
     Image,
     SafeAreaView,
+    ScrollView,
     StyleSheet,
     Text,
     TouchableOpacity,
@@ -18,33 +20,47 @@ const onboardingData = [
         title: 'Relax at work',
         image: require('../../assets/images/Onboarding/1.png'),
         description: 'Take a break from your busy schedule and find moments of calm during your workday',
+        colors: ['#C2E9FB', '#A1C4FD'],
+        accentColor: '#5B9BD5',
+        buttonColors: ['#4A90E2', '#5B9BD5']
     },
     {
         id: 2,
         title: 'Time to Relax',
         image: require('../../assets/images/Onboarding/2.png'),
         description: 'Dedicate time for yourself to unwind and release the stress of daily life',
+        colors: ['#FAD0C4', '#FFD1FF'],
+        accentColor: '#E85D8A',
+        buttonColors: ['#E85D8A', '#FF8BA7']
     },
     {
         id: 3,
         title: 'Peace at least',
         image: require('../../assets/images/Onboarding/3.png'),
         description: 'Find your inner peace and tranquility through mindful meditation practices',
+        colors: ['#D4FC79', '#96E6A1'],
+        accentColor: '#4CAF50',
+        buttonColors: ['#4CAF50', '#6FCF73']
     },
     {
         id: 4,
         title: 'Open your mind',
         image: require('../../assets/images/Onboarding/4.png'),
         description: 'Expand your awareness and embrace new perspectives for mental clarity',
+        colors: ['#84FAB0', '#8FD3F4'],
+        accentColor: '#26C6DA',
+        buttonColors: ['#26C6DA', '#4DD0E1']
     },
     {
         id: 5,
         title: 'Quiet your mind',
         image: require('../../assets/images/Onboarding/5.png'),
         description: 'Silence the mental noise and achieve a state of peaceful mindfulness',
+        colors: ['#FBC2EB', '#A6C1EE'],
+        accentColor: '#9C27B0',
+        buttonColors: ['#9C27B0', '#BA68C8']
     },
 ];
-
 
 const Onboarding_Screen = () => {
     const navigation = useNavigation();
@@ -55,65 +71,129 @@ const Onboarding_Screen = () => {
         if (currentIndex < onboardingData.length - 1) {
             const nextIndex = currentIndex + 1;
             setCurrentIndex(nextIndex);
+            scrollViewRef.current?.scrollTo({
+                x: nextIndex * width,
+                animated: true
+            });
         } else {
-            // Navigate to main app
-            navigation.replace("Login_Screen" as never);
+            navigation.replace("Login_Screen");
         }
     };
 
     const handleSkip = () => {
-        // Navigate to main app
-        console.log('Skip to main app');
+        navigation.replace("Login_Screen");
     };
 
+    const handleScroll = (event) => {
+        const scrollPosition = event.nativeEvent.contentOffset.x;
+        const index = Math.round(scrollPosition / width);
+        setCurrentIndex(index);
+    };
+
+    const handleDotPress = (index) => {
+        setCurrentIndex(index);
+        scrollViewRef.current?.scrollTo({
+            x: index * width,
+            animated: true
+        });
+    };
+
+    const currentSlide = onboardingData[currentIndex];
+
     return (
-        <SafeAreaView style={styles.container}>
-            {/* Skip Button */}
-            <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
-                <Text style={styles.skipText}>Skip ›</Text>
-            </TouchableOpacity>
-
-            {/* Main Content */}
-            <View style={styles.contentContainer}>
-                {/* Onboarding Image */}
-                <View style={styles.imageContainer}>
-                    <Image
-                        source={onboardingData[currentIndex].image}
-                        style={styles.onboardingImage}
-                        resizeMode="contain"
-                    />
-                </View>
-
-                {/* Pagination Dots */}
-                <View style={styles.pagination}>
-                    {onboardingData.map((_, index) => (
-                        <View
-                            key={index}
-                            style={[
-                                styles.dot,
-                                currentIndex === index ? styles.dotActive : styles.dotInactive,
-                            ]}
-                        />
-                    ))}
-                </View>
-
-                {/* Title */}
-                <Text style={styles.title}>{onboardingData[currentIndex].title}</Text>
-
-                {/* Description */}
-                <Text style={styles.description}>{onboardingData[currentIndex].description}</Text>
-
-                {/* Next Button */}
-                <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
-                    <Text style={styles.nextButtonText}>
-                        {currentIndex === onboardingData.length - 1 ? 'Get Started' : 'Next'}
-                    </Text>
+        <LinearGradient
+            colors={currentSlide.colors}
+            style={styles.container}
+        >
+            <SafeAreaView style={{ flex: 1 }}>
+                {/* Skip Button with dynamic color */}
+                <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
+                    <LinearGradient
+                        colors={currentSlide.buttonColors}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 0 }}
+                        style={styles.skipGradient}
+                    >
+                        <Text style={styles.skipText}>Skip ›</Text>
+                    </LinearGradient>
                 </TouchableOpacity>
-            </View>
 
-            {/* Home Indicator */}
-            <View style={styles.homeIndicator} />
-        </SafeAreaView>
+                {/* Main Content with Swipe */}
+                <ScrollView
+                    ref={scrollViewRef}
+                    horizontal
+                    pagingEnabled
+                    showsHorizontalScrollIndicator={false}
+                    onMomentumScrollEnd={handleScroll}
+                    scrollEventThrottle={16}
+                    style={{ flex: 1 }}
+                >
+                    {onboardingData.map((slide, index) => (
+                        <View key={slide.id} style={styles.slideContainer}>
+                            <View style={styles.contentContainer}>
+                                <View style={styles.imageContainer}>
+                                    <Image
+                                        source={slide.image}
+                                        style={styles.onboardingImage}
+                                        resizeMode="contain"
+                                    />
+                                </View>
+
+                                {/* Title */}
+                                <Text style={styles.title}>{slide.title}</Text>
+
+                                {/* Description */}
+                                <Text style={styles.description}>{slide.description}</Text>
+                            </View>
+                        </View>
+                    ))}
+                </ScrollView>
+
+                {/* Fixed Bottom Section */}
+                <View style={styles.bottomContainer}>
+                    {/* Pagination Dots with dynamic colors */}
+                    <View style={styles.pagination}>
+                        {onboardingData.map((_, index) => (
+                            <TouchableOpacity
+                                key={index}
+                                onPress={() => handleDotPress(index)}
+                            >
+                                {currentIndex === index ? (
+                                    <LinearGradient
+                                        colors={currentSlide.buttonColors}
+                                        start={{ x: 0, y: 0 }}
+                                        end={{ x: 1, y: 0 }}
+                                        style={[styles.dot, styles.dotActive]}
+                                    />
+                                ) : (
+                                    <View
+                                        style={[
+                                            styles.dot,
+                                            styles.dotInactive,
+                                            { backgroundColor: 'rgba(255, 255, 255, 0.4)' }
+                                        ]}
+                                    />
+                                )}
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+
+                    {/* Next Button with dynamic gradient */}
+                    <TouchableOpacity onPress={handleNext} style={styles.nextButtonWrapper}>
+                        <LinearGradient
+                            colors={currentSlide.buttonColors}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 0 }}
+                            style={styles.nextButton}
+                        >
+                            <Text style={styles.nextButtonText}>
+                                {currentIndex === onboardingData.length - 1 ? 'Get Started' : 'Next'}
+                            </Text>
+                        </LinearGradient>
+                    </TouchableOpacity>
+                </View>
+            </SafeAreaView>
+        </LinearGradient>
     );
 };
 
@@ -122,18 +202,34 @@ export default Onboarding_Screen;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#E5F2F3',
     },
     skipButton: {
         position: 'absolute',
         top: 70,
         right: 20,
         zIndex: 10,
+        borderRadius: 20,
+        overflow: 'hidden',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    skipGradient: {
+        paddingHorizontal: 20,
+        paddingVertical: 8,
+        borderRadius: 20,
     },
     skipText: {
         fontSize: 16,
-        color: '#b86731',
-        fontFamily: "Lato-Regular"
+        color: '#FFFFFF',
+        fontFamily: "Lato-Bold",
+        fontWeight: '600',
+    },
+    slideContainer: {
+        width: width,
+        flex: 1,
     },
     contentContainer: {
         flex: 1,
@@ -143,7 +239,7 @@ const styles = StyleSheet.create({
     },
     imageContainer: {
         width: width * 0.9,
-        height: height * 0.55,
+        height: height * 0.5,
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 20,
@@ -151,6 +247,10 @@ const styles = StyleSheet.create({
     onboardingImage: {
         width: '100%',
         height: '100%',
+    },
+    bottomContainer: {
+        alignItems: 'center',
+        paddingBottom: 40,
     },
     pagination: {
         flexDirection: 'row',
@@ -162,40 +262,53 @@ const styles = StyleSheet.create({
         borderRadius: 5,
     },
     dotActive: {
-        backgroundColor: '#b86731',
         width: 30,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 3,
+        elevation: 2,
     },
     dotInactive: {
-        backgroundColor: '#D0D0D0',
         width: 10,
     },
     title: {
         fontSize: 28,
-        color: '#584f47',
+        color: '#3A2E2E',
         textAlign: 'center',
         marginBottom: 15,
         lineHeight: 36,
-        paddingHorizontal: 20, fontFamily: "Lato-Bold"
+        fontFamily: "Lato-Bold"
     },
     description: {
         fontSize: 16,
-
-        color: '#7a6f66',
+        color: '#5C5049',
         textAlign: 'center',
         marginBottom: 30,
         lineHeight: 24,
-        paddingHorizontal: 30, fontFamily: "Lato-Regular"
+        paddingHorizontal: 30,
+        fontFamily: "Lato-Regular"
+    },
+    nextButtonWrapper: {
+        borderRadius: 30,
+        overflow: 'hidden',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 6,
     },
     nextButton: {
-        backgroundColor: '#b86731',
         paddingHorizontal: 100,
-        paddingVertical: 14,
+        paddingVertical: 16,
         borderRadius: 30,
-        marginBottom: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     nextButtonText: {
         fontFamily: "Lato-Bold",
         color: '#FFFFFF',
+        fontSize: 18,
+        fontWeight: '700',
     },
-
 });

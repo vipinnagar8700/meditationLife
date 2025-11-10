@@ -70,121 +70,12 @@ const Home_Screen = () => {
                     )}
                     scrollEventThrottle={16}
                 >
-                    {/* Welcome Section */}
-                    <Animated.View
-                        style={[
-                            styles.welcomeSection,
-                            {
-                                opacity: fadeAnim,
-                                transform: [{ scale: scaleAnim }]
-                            }
-                        ]}
-                    >
-                        <LinearGradient
-                            colors={['#EA580C', '#F59E0B', '#EA580C']}
-                            start={{ x: 0, y: 0 }}
-                            end={{ x: 1, y: 1 }}
-                            style={styles.welcomeGradient}
-                        >
-                            <Text style={styles.welcomeTitle}>Find Your Inner Peace</Text>
-                            <Text style={styles.welcomeSubtitle}>
-                                Start your meditation journey today
-                            </Text>
-                        </LinearGradient>
-                    </Animated.View>
-
-                    {/* Daily Quote Card with 3D Effect */}
-                    <Animated.View
-                        style={[
-                            styles.quoteCardContainer,
-                            {
-                                opacity: fadeAnim,
-                                transform: [
-                                    { perspective: 1000 },
-                                    {
-                                        rotateY: scrollY.interpolate({
-                                            inputRange: [0, 300],
-                                            outputRange: ['0deg', '5deg'],
-                                            extrapolate: 'clamp',
-                                        })
-                                    },
-                                ]
-                            }
-                        ]}
-                    >
-                        <LinearGradient
-                            colors={['#FFFFFF', '#FFF7ED']}
-                            style={styles.quoteCard}
-                        >
-                            <Animated.View
-                                style={[
-                                    styles.quoteIconContainer,
-                                    { transform: [{ rotate: spin }] }
-                                ]}
-                            >
-                                <Ionicons name="sparkles" size={28} color="#F59E0B" />
-                            </Animated.View>
-                            <Text style={styles.quoteText}>
-                                "Peace comes from within. Do not seek it without."
-                            </Text>
-                            <LinearGradient
-                                colors={['#EA580C', '#F59E0B']}
-                                start={{ x: 0, y: 0 }}
-                                end={{ x: 1, y: 0 }}
-                                style={styles.quoteAuthorGradient}
-                            >
-                                <Text style={styles.quoteAuthor}>- Buddha</Text>
-                            </LinearGradient>
-                        </LinearGradient>
-                    </Animated.View>
-
-                    {/* Quick Stats with Gradient Cards */}
-                    <Animated.View
-                        style={[
-                            styles.statsContainer,
-                            {
-                                opacity: fadeAnim,
-                                transform: [{ translateY: Animated.multiply(scrollY, -0.1) }]
-                            }
-                        ]}
-                    >
-                        <StatCard
-                            icon={<Ionicons name="flame" size={28} color="#EA580C" />}
-                            number="12"
-                            label="Day Streak"
-                            colors={['#FEE2E2', '#FED7AA']}
-                            numberColors={['#DC2626', '#EA580C']}
-                        />
-                        <StatCard
-                            icon={<Ionicons name="time-outline" size={28} color="#0EA5E9" />}
-                            number="45"
-                            label="Minutes Today"
-                            colors={['#DBEAFE', '#BAE6FD']}
-                            numberColors={['#2563EB', '#0EA5E9']}
-                        />
-                        <StatCard
-                            icon={<MaterialCommunityIcons name="target" size={28} color="#A855F7" />}
-                            number="28"
-                            label="Sessions"
-                            colors={['#E9D5FF', '#F3E8FF']}
-                            numberColors={['#9333EA', '#A855F7']}
-                        />
-                    </Animated.View>
 
                     {/* Featured Sessions */}
-                    <View style={styles.sectionContainer}>
+                    <View style={[styles.sectionContainer, { marginTop: 20 }]}>
                         <View style={styles.sectionHeader}>
                             <Text style={styles.sectionTitle}>Featured Sessions</Text>
-                            <TouchableOpacity>
-                                <LinearGradient
-                                    colors={['#EA580C', '#F59E0B']}
-                                    start={{ x: 0, y: 0 }}
-                                    end={{ x: 1, y: 0 }}
-                                    style={styles.seeAllGradient}
-                                >
-                                    <Text style={styles.seeAllText}>See All →</Text>
-                                </LinearGradient>
-                            </TouchableOpacity>
+
                         </View>
 
                         <ScrollView

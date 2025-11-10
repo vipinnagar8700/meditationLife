@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import React, { useEffect, useRef, useState } from 'react';
 import {
     Alert,
+    Animated,
     Dimensions,
     ScrollView,
     StyleSheet,
@@ -169,30 +172,131 @@ const Question_Screen = ({ navigation }) => {
     const [currentQuestion, setCurrentQuestion] = useState(0);
     const [answers, setAnswers] = useState({});
 
+    // Animation values
+    const fadeAnim = useRef(new Animated.Value(0)).current;
+    const slideAnim = useRef(new Animated.Value(50)).current;
+    const scaleAnim = useRef(new Animated.Value(0.9)).current;
+    const progressAnim = useRef(new Animated.Value(0)).current;
+
+    useEffect(() => {
+        // Animate question card entrance
+        Animated.parallel([
+            Animated.timing(fadeAnim, {
+                toValue: 1,
+                duration: 600,
+                useNativeDriver: true,
+            }),
+            Animated.spring(slideAnim, {
+                toValue: 0,
+                tension: 20,
+                friction: 7,
+                useNativeDriver: true,
+            }),
+            Animated.spring(scaleAnim, {
+                toValue: 1,
+                tension: 20,
+                friction: 7,
+                useNativeDriver: true,
+            })
+        ]).start();
+
+        // Animate progress bar
+        const progress = ((currentQuestion + 1) / questionsData.length);
+        Animated.timing(progressAnim, {
+            toValue: progress,
+            duration: 500,
+            useNativeDriver: false,
+        }).start();
+    }, [currentQuestion]);
+
     const handleSelectOption = (optionValue) => {
         setAnswers({
             ...answers,
             [currentQuestion]: optionValue,
         });
+
+        // Subtle bounce animation on selection
+        Animated.sequence([
+            Animated.timing(scaleAnim, {
+                toValue: 0.98,
+                duration: 100,
+                useNativeDriver: true,
+            }),
+            Animated.spring(scaleAnim, {
+                toValue: 1,
+                tension: 100,
+                friction: 5,
+                useNativeDriver: true,
+            })
+        ]).start();
     };
 
     const handleNext = () => {
-        if (currentQuestion < questionsData.length - 1) {
-            setCurrentQuestion(currentQuestion + 1);
-        } else {
-            calculateMood();
-        }
+        // Fade out animation
+        Animated.parallel([
+            Animated.timing(fadeAnim, {
+                toValue: 0,
+                duration: 200,
+                useNativeDriver: true,
+            }),
+            Animated.timing(slideAnim, {
+                toValue: -50,
+                duration: 200,
+                useNativeDriver: true,
+            })
+        ]).start(() => {
+            if (currentQuestion < questionsData.length - 1) {
+                setCurrentQuestion(currentQuestion + 1);
+                // Reset animations for next question
+                fadeAnim.setValue(0);
+                slideAnim.setValue(50);
+            } else {
+                calculateMood();
+            }
+        });
     };
 
     const handlePrevious = () => {
         if (currentQuestion > 0) {
-            setCurrentQuestion(currentQuestion - 1);
+            // Fade out animation
+            Animated.parallel([
+                Animated.timing(fadeAnim, {
+                    toValue: 0,
+                    duration: 200,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(slideAnim, {
+                    toValue: 50,
+                    duration: 200,
+                    useNativeDriver: true,
+                })
+            ]).start(() => {
+                setCurrentQuestion(currentQuestion - 1);
+                // Reset animations
+                fadeAnim.setValue(0);
+                slideAnim.setValue(-50);
+            });
         }
     };
 
     const handleSkip = () => {
         if (currentQuestion < questionsData.length - 1) {
-            setCurrentQuestion(currentQuestion + 1);
+            Animated.parallel([
+                Animated.timing(fadeAnim, {
+                    toValue: 0,
+                    duration: 200,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(slideAnim, {
+                    toValue: -50,
+                    duration: 200,
+                    useNativeDriver: true,
+                })
+            ]).start(() => {
+                setCurrentQuestion(currentQuestion + 1);
+                fadeAnim.setValue(0);
+                slideAnim.setValue(50);
+            });
         } else {
             calculateMood();
         }
@@ -205,23 +309,28 @@ const Question_Screen = ({ navigation }) => {
 
         let moodStatus = '';
         let moodMessage = '';
+        let icon = '';
 
         if (percentage <= 25) {
             moodStatus = 'Excellent';
             moodMessage = 'Your mental health appears to be in great shape! Keep up the positive habits.';
+            icon = '🌟';
         } else if (percentage <= 50) {
             moodStatus = 'Good';
             moodMessage = 'You\'re doing well overall. Consider some relaxation techniques to maintain balance.';
+            icon = '😊';
         } else if (percentage <= 75) {
             moodStatus = 'Fair';
             moodMessage = 'You may be experiencing some challenges. Consider speaking with someone you trust.';
+            icon = '💭';
         } else {
             moodStatus = 'Needs Attention';
             moodMessage = 'It seems you\'re going through a difficult time. Please consider reaching out to a mental health professional.';
+            icon = '💙';
         }
 
         Alert.alert(
-            `Mood Assessment: ${moodStatus}`,
+            `${icon} Mood Assessment: ${moodStatus}`,
             `Score: ${totalScore}/${maxScore} (${percentage.toFixed(1)}%)\n\n${moodMessage}`,
             [
                 {
@@ -237,122 +346,177 @@ const Question_Screen = ({ navigation }) => {
     };
 
     const currentQ = questionsData[currentQuestion];
-    const progress = ((currentQuestion + 1) / questionsData.length) * 100;
+    const progressWidth = progressAnim.interpolate({
+        inputRange: [0, 1],
+        outputRange: ['0%', '100%'],
+    });
 
     return (
-        <SafeAreaView style={styles.container}>
-            {/* Header */}
-            <View style={styles.header}>
-                {/* <TouchableOpacity onPress={() => console.log('Go back')}>
-                    <Text style={styles.backButton}>←</Text>
-                </TouchableOpacity> */}
-                <Text style={styles.headerTitle}>Mental Health Assessment</Text>
-                <TouchableOpacity onPress={handleSkip}>
-                    <Text style={styles.skipButton}>Skip</Text>
-                </TouchableOpacity>
-            </View>
-
-            {/* Progress Bar */}
-            <View style={styles.progressContainer}>
-                <View style={styles.progressBarBackground}>
-                    <View style={[styles.progressBarFill, { width: `${progress}%` }]} />
+        <LinearGradient
+            colors={['#E8624E', '#F3A469']}
+            style={styles.gradient}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+        >
+            <SafeAreaView style={styles.container}>
+                {/* Header */}
+                <View style={styles.header}>
+                    <Text style={styles.headerTitle}>Mental Health Assessment</Text>
+                    <TouchableOpacity onPress={handleSkip} style={styles.skipButtonContainer}>
+                        <Text style={styles.skipButton}>Skip</Text>
+                        <Ionicons name="arrow-forward" size={16} color="#fff" />
+                    </TouchableOpacity>
                 </View>
-                <Text style={styles.progressText}>
-                    {currentQuestion + 1}/{questionsData.length}
-                </Text>
-            </View>
 
-            {/* Question Card */}
-            <ScrollView
-                style={styles.scrollView}
-                contentContainerStyle={styles.scrollContent}
-                showsVerticalScrollIndicator={false}
-            >
-                <View style={styles.questionCard}>
-                    <Text style={styles.questionNumber}>Question {currentQuestion + 1}</Text>
-                    <Text style={styles.questionText}>{currentQ.question}</Text>
-
-                    {/* Options */}
-                    <View style={styles.optionsContainer}>
-                        {currentQ.options.map((option, index) => {
-                            const isSelected = answers[currentQuestion] === option.value;
-                            return (
-                                <TouchableOpacity
-                                    key={index}
-                                    style={[
-                                        styles.optionButton,
-                                        isSelected && styles.optionButtonSelected,
-                                    ]}
-                                    onPress={() => handleSelectOption(option.value)}
-                                >
-                                    <View
-                                        style={[
-                                            styles.radioButton,
-                                            isSelected && styles.radioButtonSelected,
-                                        ]}
-                                    >
-                                        {isSelected && <View style={styles.radioButtonInner} />}
-                                    </View>
-                                    <Text
-                                        style={[
-                                            styles.optionText,
-                                            isSelected && styles.optionTextSelected,
-                                        ]}
-                                    >
-                                        {option.label}
-                                    </Text>
-                                </TouchableOpacity>
-                            );
-                        })}
+                {/* Progress Bar */}
+                <View style={styles.progressContainer}>
+                    <View style={styles.progressBarBackground}>
+                        <Animated.View
+                            style={[
+                                styles.progressBarFill,
+                                { width: progressWidth }
+                            ]}
+                        />
                     </View>
+                    <Text style={styles.progressText}>
+                        {currentQuestion + 1}/{questionsData.length}
+                    </Text>
                 </View>
-            </ScrollView>
 
-            {/* Navigation Buttons */}
-            <View style={styles.navigationContainer}>
-                <TouchableOpacity
-                    style={[
-                        styles.navButton,
-                        styles.previousButton,
-                        currentQuestion === 0 && styles.navButtonDisabled,
-                    ]}
-                    onPress={handlePrevious}
-                    disabled={currentQuestion === 0}
+                {/* Question Card */}
+                <ScrollView
+                    style={styles.scrollView}
+                    contentContainerStyle={styles.scrollContent}
+                    showsVerticalScrollIndicator={false}
                 >
-                    <Text
+                    <Animated.View
                         style={[
-                            styles.navButtonText,
-                            currentQuestion === 0 && styles.navButtonTextDisabled,
+                            styles.questionCard,
+                            {
+                                opacity: fadeAnim,
+                                transform: [
+                                    { translateY: slideAnim },
+                                    { scale: scaleAnim }
+                                ]
+                            }
                         ]}
                     >
-                        Previous
-                    </Text>
-                </TouchableOpacity>
+                        <View style={styles.questionHeader}>
+                            <View style={styles.questionNumberBadge}>
+                                <Text style={styles.questionNumber}>Q{currentQuestion + 1}</Text>
+                            </View>
+                            <Ionicons name="help-circle-outline" size={24} color="#E8624E" />
+                        </View>
 
-                <TouchableOpacity
-                    style={[
-                        styles.navButton,
-                        styles.nextButton,
-                        answers[currentQuestion] === undefined && styles.navButtonDisabled,
-                    ]}
-                    onPress={handleNext}
-                    disabled={answers[currentQuestion] === undefined}
-                >
-                    <Text style={styles.navButtonTextWhite}>
-                        {currentQuestion === questionsData.length - 1 ? 'Submit' : 'Next'}
-                    </Text>
-                </TouchableOpacity>
-            </View>
-        </SafeAreaView>
+                        <Text style={styles.questionText}>{currentQ.question}</Text>
+
+                        {/* Options */}
+                        <View style={styles.optionsContainer}>
+                            {currentQ.options.map((option, index) => {
+                                const isSelected = answers[currentQuestion] === option.value;
+                                return (
+                                    <TouchableOpacity
+                                        key={index}
+                                        style={[
+                                            styles.optionButton,
+                                            isSelected && styles.optionButtonSelected,
+                                        ]}
+                                        onPress={() => handleSelectOption(option.value)}
+                                        activeOpacity={0.7}
+                                    >
+                                        <View
+                                            style={[
+                                                styles.radioButton,
+                                                isSelected && styles.radioButtonSelected,
+                                            ]}
+                                        >
+                                            {isSelected && <View style={styles.radioButtonInner} />}
+                                        </View>
+                                        <Text
+                                            style={[
+                                                styles.optionText,
+                                                isSelected && styles.optionTextSelected,
+                                            ]}
+                                        >
+                                            {option.label}
+                                        </Text>
+                                        {isSelected && (
+                                            <Ionicons name="checkmark-circle" size={24} color="#E8624E" />
+                                        )}
+                                    </TouchableOpacity>
+                                );
+                            })}
+                        </View>
+                    </Animated.View>
+                </ScrollView>
+
+                {/* Navigation Buttons */}
+                <View style={styles.navigationContainer}>
+                    <TouchableOpacity
+                        style={[
+                            styles.navButton,
+                            styles.previousButton,
+                            currentQuestion === 0 && styles.navButtonDisabled,
+                        ]}
+                        onPress={handlePrevious}
+                        disabled={currentQuestion === 0}
+                        activeOpacity={0.7}
+                    >
+                        <Ionicons
+                            name="arrow-back"
+                            size={20}
+                            color={currentQuestion === 0 ? '#9CA3AF' : '#374151'}
+                        />
+                        <Text
+                            style={[
+                                styles.navButtonText,
+                                currentQuestion === 0 && styles.navButtonTextDisabled,
+                            ]}
+                        >
+                            Previous
+                        </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={styles.nextButtonContainer}
+                        onPress={handleNext}
+                        disabled={answers[currentQuestion] === undefined}
+                        activeOpacity={0.8}
+                    >
+                        <LinearGradient
+                            colors={
+                                answers[currentQuestion] === undefined
+                                    ? ['#D1D5DB', '#D1D5DB']
+                                    : ['#E8624E', '#F3A469']
+                            }
+                            start={{ x: 0, y: 0 }}
+                            style={styles.nextButton}
+                            end={{ x: 1, y: 0 }}
+                        >
+                            <Text style={styles.navButtonTextWhite}>
+                                {currentQuestion === questionsData.length - 1 ? 'Submit' : 'Next'}
+                            </Text>
+                            <Ionicons
+                                name={currentQuestion === questionsData.length - 1 ? "checkmark" : "arrow-forward"}
+                                size={20}
+                                color="#fff"
+                            />
+                        </LinearGradient>
+                    </TouchableOpacity>
+                </View>
+            </SafeAreaView>
+        </LinearGradient>
     );
 };
 
 export default Question_Screen;
 
 const styles = StyleSheet.create({
+    gradient: {
+        flex: 1,
+    },
     container: {
         flex: 1,
-        backgroundColor: '#F5F7FA',
     },
     header: {
         flexDirection: 'row',
@@ -360,45 +524,46 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingHorizontal: 20,
         paddingVertical: 15,
-        backgroundColor: '#FFFFFF',
-        borderBottomWidth: 1,
-        borderBottomColor: '#E5E7EB',
-    },
-    backButton: {
-        fontSize: 24,
-        color: '#374151',
-        fontWeight: '600',
     },
     headerTitle: {
         fontSize: 18,
-        color: '#1F2937', fontFamily: "Lato-Bold"
+        color: '#fff',
+        fontFamily: "Lato-Bold"
+    },
+    skipButtonContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
     },
     skipButton: {
         fontSize: 16,
-        color: '#b86731',
+        color: '#fff',
         fontFamily: "Lato-Regular"
     },
     progressContainer: {
         paddingHorizontal: 20,
-        paddingVertical: 15,
-        backgroundColor: '#FFFFFF',
+        paddingVertical: 12,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
     },
     progressBarBackground: {
-        height: 6,
-        backgroundColor: '#E5E7EB',
-        borderRadius: 3,
+        flex: 1,
+        height: 8,
+        backgroundColor: 'rgba(255, 255, 255, 0.3)',
+        borderRadius: 4,
         overflow: 'hidden',
     },
     progressBarFill: {
         height: '100%',
-        backgroundColor: '#b86731',
-        borderRadius: 3,
+        backgroundColor: '#fff',
+        borderRadius: 4,
     },
     progressText: {
         fontSize: 14,
-        color: '#6B7280',
-        marginTop: 8,
-        fontFamily: "Lato-Bold"
+        color: '#fff',
+        fontFamily: "Lato-Bold",
+        minWidth: 50,
     },
     scrollView: {
         flex: 1,
@@ -408,25 +573,36 @@ const styles = StyleSheet.create({
     },
     questionCard: {
         backgroundColor: '#FFFFFF',
-        borderRadius: 16,
-        padding: 20,
+        borderRadius: 20,
+        padding: 24,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 8,
-        elevation: 2,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 12,
+        elevation: 5,
+    },
+    questionHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 16,
+    },
+    questionNumberBadge: {
+        backgroundColor: '#FEF3E8',
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 20,
     },
     questionNumber: {
         fontSize: 14,
         fontFamily: "Lato-Bold",
-        color: '#b86731',
-        marginBottom: 12,
+        color: '#E8624E',
     },
     questionText: {
         fontSize: 18,
-        fontWeight: '500',
+        fontFamily: "Lato-Bold",
         color: '#1F2937',
-        lineHeight: 26,
+        lineHeight: 28,
         marginBottom: 24,
     },
     optionsContainer: {
@@ -436,14 +612,14 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: '#F9FAFB',
-        borderRadius: 12,
+        borderRadius: 14,
         padding: 16,
         borderWidth: 2,
         borderColor: '#E5E7EB',
     },
     optionButtonSelected: {
         backgroundColor: '#FEF3E8',
-        borderColor: '#b86731',
+        borderColor: '#E8624E',
     },
     radioButton: {
         width: 24,
@@ -456,59 +632,74 @@ const styles = StyleSheet.create({
         marginRight: 12,
     },
     radioButtonSelected: {
-        borderColor: '#b86731',
+        borderColor: '#E8624E',
     },
     radioButtonInner: {
         width: 12,
         height: 12,
         borderRadius: 6,
-        backgroundColor: '#b86731',
+        backgroundColor: '#E8624E',
     },
     optionText: {
         fontSize: 16,
         color: '#4B5563',
-        flex: 1, fontFamily: "Lato-Regular"
+        flex: 1,
+        fontFamily: "Lato-Regular"
     },
     optionTextSelected: {
         color: '#1F2937',
-        fontFamily: "Lato-Regular"
+        fontFamily: "Lato-Bold"
     },
     navigationContainer: {
         flexDirection: 'row',
         gap: 12,
         paddingHorizontal: 20,
         paddingVertical: 20,
-        backgroundColor: '#FFFFFF',
-        borderTopWidth: 1,
-        borderTopColor: '#E5E7EB',
     },
     navButton: {
         flex: 1,
-        paddingVertical: 16,
-        borderRadius: 12,
+        flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
+        gap: 8,
+        paddingVertical: 16,
+        borderRadius: 14,
     },
     previousButton: {
-        backgroundColor: '#F3F4F6',
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
         borderWidth: 1,
-        borderColor: '#D1D5DB',
+        borderColor: 'rgba(255, 255, 255, 0.5)',
+    },
+    nextButtonContainer: {
+        flex: 1,
+        borderRadius: 14,
+        overflow: 'hidden',
+        shadowColor: '#E8624E',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 4,
     },
     nextButton: {
-        backgroundColor: '#b86731',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        paddingVertical: 16,
+        borderRadius: 14,
     },
     navButtonDisabled: {
-        backgroundColor: '#F3F4F6',
-        borderColor: '#E5E7EB',
+        backgroundColor: 'rgba(255, 255, 255, 0.5)',
+        borderColor: 'rgba(255, 255, 255, 0.3)',
     },
     navButtonText: {
         fontSize: 16,
-        fontFamily: "Lato-Regular",
+        fontFamily: "Lato-Bold",
         color: '#374151',
     },
     navButtonTextWhite: {
         fontSize: 16,
-        fontFamily: "Lato-Regular",
+        fontFamily: "Lato-Bold",
         color: '#FFFFFF',
     },
     navButtonTextDisabled: {

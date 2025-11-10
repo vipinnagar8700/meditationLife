@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import React, { useEffect, useRef, useState } from 'react';
+import { Alert, Animated, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 const Login_Screen = ({ navigation }) => {
     const [email, setEmail] = useState('test@gmail.com');
@@ -8,6 +9,44 @@ const Login_Screen = ({ navigation }) => {
     const [emailError, setEmailError] = useState('');
     const [passwordError, setPasswordError] = useState('');
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
+    // Animation values
+    const fadeAnim = useRef(new Animated.Value(0)).current;
+    const slideAnim = useRef(new Animated.Value(50)).current;
+    const pulseAnim = useRef(new Animated.Value(1)).current;
+
+    useEffect(() => {
+        // Form fade in and slide up animation
+        Animated.parallel([
+            Animated.timing(fadeAnim, {
+                toValue: 1,
+                duration: 800,
+                useNativeDriver: true,
+            }),
+            Animated.spring(slideAnim, {
+                toValue: 0,
+                tension: 20,
+                friction: 7,
+                useNativeDriver: true,
+            })
+        ]).start();
+
+        // Continuous pulse animation for form border
+        Animated.loop(
+            Animated.sequence([
+                Animated.timing(pulseAnim, {
+                    toValue: 1.02,
+                    duration: 2000,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(pulseAnim, {
+                    toValue: 1,
+                    duration: 2000,
+                    useNativeDriver: true,
+                })
+            ])
+        ).start();
+    }, []);
 
     const validateEmail = (text) => {
         setEmail(text);
@@ -59,93 +98,130 @@ const Login_Screen = ({ navigation }) => {
     };
 
     return (
-        <ScrollView contentContainerStyle={styles.container}>
-            <View style={styles.headerContainer}>
-                <Text style={styles.logo}>🧘‍♀️</Text>
-                <Text style={styles.title}>Welcome Back</Text>
-                <Text style={styles.subtitle}>Continue your meditation journey</Text>
-            </View>
-
-            <View style={styles.formContainer}>
-                {/* Email Input */}
-                <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Email</Text>
-                    <TextInput
-                        style={[styles.input, emailError && styles.inputError]}
-                        placeholder="Enter your email"
-                        placeholderTextColor="#999"
-                        value={email}
-                        onChangeText={validateEmail}
-                        keyboardType="email-address"
-                        autoCapitalize="none"
-                        autoComplete="email"
-                    />
-                    {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
+        <LinearGradient
+            colors={['#E8624E', '#F3A469']}
+            style={styles.gradient}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+        >
+            <ScrollView contentContainerStyle={styles.container}>
+                <View style={styles.headerContainer}>
+                    <Image source={require('../../assets/images/icon.png')} style={styles.logo} />
+                    <Text style={styles.title}>Welcome Back</Text>
+                    <Text style={styles.subtitle}>Continue your meditation journey</Text>
                 </View>
 
-                {/* Password Input */}
-                <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Password</Text>
-                    <View style={styles.passwordContainer}>
-                        <TextInput
-                            style={[styles.input, passwordError && styles.inputError, styles.passwordInput]}
-                            placeholder="Enter your password"
-                            placeholderTextColor="#999"
-                            value={password}
-                            onChangeText={validatePassword}
-                            secureTextEntry={!isPasswordVisible}
-                            autoCapitalize="none"
-                        />
-                        <TouchableOpacity
-                            style={styles.eyeIcon}
-                            onPress={() => setIsPasswordVisible(!isPasswordVisible)}
-                        >
-                            <Text style={styles.eyeText}>{isPasswordVisible ? '👁️' : '👁️‍🗨️'}</Text>
-                        </TouchableOpacity>
-                    </View>
-                    {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
-                </View>
-
-                {/* Remember Me & Forgot Password */}
-                <View style={styles.optionsContainer}>
-                    <TouchableOpacity
-                        style={styles.checkboxContainer}
-                        onPress={() => setRememberMe(!rememberMe)}
+                <Animated.View
+                    style={[
+                        styles.formWrapper,
+                        {
+                            opacity: fadeAnim,
+                            transform: [
+                                { translateY: slideAnim },
+                                { scale: pulseAnim }
+                            ]
+                        }
+                    ]}
+                >
+                    {/* Animated gradient border */}
+                    <LinearGradient
+                        colors={['#E8624E', '#F3A469', '#E8624E']}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={styles.gradientBorder}
                     >
-                        <View style={[styles.checkbox, rememberMe && styles.checkboxChecked]}>
-                            {rememberMe && <Text style={styles.checkmark}>✓</Text>}
+                        <View style={styles.formContainer}>
+                            {/* Email Input */}
+                            <View style={styles.inputContainer}>
+                                <Text style={styles.label}>Email</Text>
+                                <TextInput
+                                    style={[styles.input, emailError && styles.inputError]}
+                                    placeholder="Enter your email"
+                                    placeholderTextColor="#999"
+                                    value={email}
+                                    onChangeText={validateEmail}
+                                    keyboardType="email-address"
+                                    autoCapitalize="none"
+                                    autoComplete="email"
+                                />
+                                {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
+                            </View>
+
+                            {/* Password Input */}
+                            <View style={styles.inputContainer}>
+                                <Text style={styles.label}>Password</Text>
+                                <View style={styles.passwordContainer}>
+                                    <TextInput
+                                        style={[styles.input, passwordError && styles.inputError, styles.passwordInput]}
+                                        placeholder="Enter your password"
+                                        placeholderTextColor="#999"
+                                        value={password}
+                                        onChangeText={validatePassword}
+                                        secureTextEntry={!isPasswordVisible}
+                                        autoCapitalize="none"
+                                    />
+                                    <TouchableOpacity
+                                        style={styles.eyeIcon}
+                                        onPress={() => setIsPasswordVisible(!isPasswordVisible)}
+                                    >
+                                        <Text style={styles.eyeText}>{isPasswordVisible ? '👁️' : '👁️‍🗨️'}</Text>
+                                    </TouchableOpacity>
+                                </View>
+                                {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
+                            </View>
+
+                            {/* Remember Me & Forgot Password */}
+                            <View style={styles.optionsContainer}>
+                                <TouchableOpacity
+                                    style={styles.checkboxContainer}
+                                    onPress={() => setRememberMe(!rememberMe)}
+                                >
+                                    <View style={[styles.checkbox, rememberMe && styles.checkboxChecked]}>
+                                        {rememberMe && <Text style={styles.checkmark}>✓</Text>}
+                                    </View>
+                                    <Text style={styles.checkboxLabel}>Remember me</Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity onPress={() => Alert.alert('Forgot Password', 'Password reset link sent!')}>
+                                    <Text style={styles.forgotText}>Forgot Password?</Text>
+                                </TouchableOpacity>
+                            </View>
+
+                            {/* Sign In Button with Gradient */}
+                            <TouchableOpacity onPress={handleSignIn} style={styles.signInButtonWrapper}>
+                                <LinearGradient
+                                    colors={['#E8624E', '#F3A469']}
+                                    start={{ x: 0, y: 0 }}
+                                    end={{ x: 1, y: 0 }}
+                                    style={styles.signInButton}
+                                >
+                                    <Text style={styles.signInButtonText}>Sign In</Text>
+                                </LinearGradient>
+                            </TouchableOpacity>
+
+                            {/* Sign Up Link */}
+                            <View style={styles.signUpContainer}>
+                                <Text style={styles.signUpText}>Don't have an account? </Text>
+                                <TouchableOpacity onPress={() => navigation.navigate('SignUp_Screen')}>
+                                    <Text style={styles.signUpLink}>Sign Up</Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
-                        <Text style={styles.checkboxLabel}>Remember me</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity onPress={() => Alert.alert('Forgot Password', 'Password reset link sent!')}>
-                        <Text style={styles.forgotText}>Forgot Password?</Text>
-                    </TouchableOpacity>
-                </View>
-
-                {/* Sign In Button */}
-                <TouchableOpacity style={styles.signInButton} onPress={handleSignIn}>
-                    <Text style={styles.signInButtonText}>Sign In</Text>
-                </TouchableOpacity>
-
-                {/* Sign Up Link */}
-                <View style={styles.signUpContainer}>
-                    <Text style={styles.signUpText}>Don't have an account? </Text>
-                    <TouchableOpacity onPress={() => { navigation.navigate('SignUp_Screen') }}>
-                        <Text style={styles.signUpLink}>Sign Up</Text>
-                    </TouchableOpacity>
-                </View>
-            </View>
-        </ScrollView>
+                    </LinearGradient>
+                </Animated.View>
+            </ScrollView>
+        </LinearGradient>
     );
 };
 
 export default Login_Screen;
 
 const styles = StyleSheet.create({
+    gradient: {
+        flex: 1,
+    },
     container: {
         flexGrow: 1,
-        backgroundColor: '#f5f5f0',
         padding: 20,
         justifyContent: 'center',
     },
@@ -154,28 +230,43 @@ const styles = StyleSheet.create({
         marginBottom: 40,
     },
     logo: {
-        fontSize: 60,
-        marginBottom: 10,
+        width: 150,
+        height: 150,
+        marginBottom: 20,
+        borderRadius: 75,
     },
     title: {
         fontSize: 32,
-        color: '#2c2c2c',
-        marginBottom: 8, fontFamily: "Lato-Bold"
+        color: '#fff',
+        marginBottom: 8,
+        fontFamily: "Lato-Bold",
+        textShadowColor: 'rgba(0, 0, 0, 0.2)',
+        textShadowOffset: { width: 0, height: 2 },
+        textShadowRadius: 4,
     },
     subtitle: {
         fontSize: 16,
-        color: '#666',
-        textAlign: 'center', fontFamily: "Lato-Regular"
+        color: '#fff',
+        textAlign: 'center',
+        fontFamily: "Lato-Regular",
+        opacity: 0.9,
+    },
+    formWrapper: {
+        borderRadius: 26,
+    },
+    gradientBorder: {
+        borderRadius: 26,
+        padding: 3,
+        shadowColor: '#E8624E',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.3,
+        shadowRadius: 16,
+        elevation: 10,
     },
     formContainer: {
         backgroundColor: '#fff',
-        borderRadius: 20,
+        borderRadius: 24,
         padding: 24,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 10,
-        elevation: 5,
     },
     inputContainer: {
         marginBottom: 20,
@@ -193,7 +284,8 @@ const styles = StyleSheet.create({
         fontSize: 16,
         borderWidth: 1,
         borderColor: '#e0e0e0',
-        color: '#2c2c2c', fontFamily: "Lato-Regular"
+        color: '#2c2c2c',
+        fontFamily: "Lato-Regular"
     },
     inputError: {
         borderColor: '#ff6b6b',
@@ -211,19 +303,20 @@ const styles = StyleSheet.create({
         top: 16,
     },
     eyeText: {
-        fontSize: 20, fontFamily: "Lato-Regaulr"
+        fontSize: 20,
     },
     errorText: {
         color: '#ff6b6b',
         fontSize: 12,
         marginTop: 6,
         marginLeft: 4,
+        fontFamily: "Lato-Regular",
     },
     optionsContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 16,
+        marginBottom: 24,
     },
     checkboxContainer: {
         flexDirection: 'row',
@@ -234,13 +327,13 @@ const styles = StyleSheet.create({
         height: 22,
         borderRadius: 6,
         borderWidth: 2,
-        borderColor: '#b86731',
+        borderColor: '#E8624E',
         marginRight: 8,
         justifyContent: 'center',
         alignItems: 'center',
     },
     checkboxChecked: {
-        backgroundColor: '#b86731',
+        backgroundColor: '#E8624E',
     },
     checkmark: {
         color: '#fff',
@@ -250,58 +343,46 @@ const styles = StyleSheet.create({
     checkboxLabel: {
         fontSize: 14,
         color: '#666',
+        fontFamily: "Lato-Regular",
     },
     forgotText: {
         fontSize: 14,
-        color: '#b86731'
-        , fontFamily: "Lato-Regular"
+        color: '#E8624E',
+        fontFamily: "Lato-Regular"
+    },
+    signInButtonWrapper: {
+        marginBottom: 20,
+        borderRadius: 12,
+        overflow: 'hidden',
+        shadowColor: '#E8624E',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.4,
+        shadowRadius: 12,
+        elevation: 6,
     },
     signInButton: {
-        backgroundColor: '#b86731',
         borderRadius: 12,
-        padding: 14,
+        padding: 16,
         alignItems: 'center',
-        marginBottom: 20,
-
     },
     signInButtonText: {
         color: '#fff',
         fontSize: 18,
-        fontWeight: '700',
+        fontFamily: "Lato-Bold",
     },
     signUpContainer: {
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 20,
     },
     signUpText: {
         fontSize: 14,
-        color: '#666', fontFamily: "Lato-Regular"
+        color: '#666',
+        fontFamily: "Lato-Regular"
     },
     signUpLink: {
         fontSize: 14,
-        color: '#b86731'
-        , fontFamily: "Lato-Regular"
-    },
-    testInfoContainer: {
-        backgroundColor: '#f0f7ff',
-        padding: 16,
-        borderRadius: 12,
-        borderWidth: 1,
-        borderColor: '#cce5ff',
-        marginTop: 10,
-    },
-    testInfoTitle: {
-        fontSize: 12,
-        fontWeight: '700',
-        color: '#2c2c2c',
-        marginBottom: 6,
-    },
-    testInfo: {
-        fontSize: 11,
-        color: '#666',
-        fontFamily: 'monospace',
-        marginBottom: 2,
+        color: '#E8624E',
+        fontFamily: "Lato-Bold"
     },
 });
