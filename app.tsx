@@ -8,20 +8,23 @@ import * as Font from 'expo-font';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect } from 'react';
 import { Alert, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
-
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Login_Screen from './Src/Auth/Login_Screen';
 import SignUp_Screen from './Src/Auth/SignUp_Screen';
 import Content_Screens from './Src/ContentPages/Content_Screens';
 import Home_Screen from './Src/MainScreens/Home_Screen';
-import MyMusic_Screen from './Src/MainScreens/MyMusic_Screen';
-import Profile_Screen from './Src/MainScreens/Profile_Screen';
+import MeditationDetailScreen from './Src/Meditation/MeditationDetailScreen';
+import MeditationLists from './Src/Meditation/MeditationLists';
+import PlayerScreen from './Src/Meditation/PlayerScreen';
 import Music_Screen from './Src/MusicScreen/MusicScreen';
 import Single_Music from './Src/MusicScreen/Single_Music';
 import Notification_Screen from './Src/Notification/Notification_Screen';
 import Onboarding_Screen from './Src/Onboarding/Onboarding_Screen';
+import Profile_Edit_Screen from './Src/ProfileScreen/Profile_Edit_Screen';
 import Question_Screen from './Src/QuestionLists/Question_Screen';
+import Setting from './Src/Setting/Setting';
 import Splash_Screen from './Src/Splash/Splash_Screen';
+import Subscription_Screen from './Src/Subscription/Subscription_Screen';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -54,8 +57,10 @@ const CustomDrawer = ({ navigation }) => {
     return (
         <View style={styles.drawerContainer}>
             <LinearGradient
-                colors={['#EA580C', '#F59E0B']}
+                colors={['#E8624E', '#F3A469']}
                 style={styles.drawerHeader}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
             >
                 <View style={styles.drawerAvatar}>
                     <Text style={styles.drawerAvatarText}>S</Text>
@@ -65,11 +70,9 @@ const CustomDrawer = ({ navigation }) => {
             </LinearGradient>
 
             <ScrollView style={styles.drawerMenu}>
-
-
                 <TouchableOpacity
                     style={styles.drawerItem}
-                    onPress={() => navigation.navigate('Settings')}
+                    onPress={() => navigation.navigate('Setting')}
                 >
                     <Ionicons name="settings" size={24} color="#b0a9a9ff" style={styles.drawerItemIcon} />
                     <Text style={styles.drawerItemText}>Settings</Text>
@@ -131,74 +134,8 @@ const CustomDrawer = ({ navigation }) => {
 };
 
 // Bottom Tab Navigator
-const TabNavigator = () => {
-    const insets = useSafeAreaInsets();
+// Bottom Tab Navigator with Animation
 
-    return (
-        <Tab.Navigator
-            screenOptions={({ route }) => ({
-                headerShown: false,
-                tabBarStyle: {
-                    height: 60 + insets.bottom,
-                    paddingBottom: insets.bottom,
-                    paddingTop: 8,
-                    backgroundColor: '#FFF',
-                    borderTopWidth: 0,
-                    shadowColor: '#000',
-                    shadowOffset: { width: 0, height: -4 },
-                    shadowOpacity: 0.1,
-                    shadowRadius: 12,
-                    elevation: 20,
-                },
-                tabBarActiveTintColor: '#EA580C',
-                tabBarInactiveTintColor: '#999',
-                tabBarLabelPosition: 'below-icon',
-                tabBarLabel: ({ focused, color }) => (
-                    !focused ? (
-                        null
-                    ) : null // hide active label
-                ),
-                tabBarIcon: ({ focused, color, size }) => {
-                    let iconName;
-
-                    if (route.name === 'Home') {
-                        iconName = focused ? 'home' : 'home-outline';
-                    } else if (route.name === 'Profile') {
-                        iconName = focused ? 'person' : 'person-outline';
-                    } else if (route.name === 'Notifications') {
-                        iconName = focused ? 'notifications' : 'notifications-outline';
-                    } else if (route.name === 'MyMusic') {
-                        iconName = focused ? 'musical-notes' : 'musical-notes-outline';
-                    }
-
-                    return (
-                        <View
-                            style={[
-                                styles.tabIconContainer,
-                                focused && styles.tabIconContainerActive,
-                            ]}
-                        >
-                            {focused && (
-                                <LinearGradient
-                                    colors={['#EA580C', '#F59E0B']}
-                                    style={StyleSheet.absoluteFillObject}
-                                    start={{ x: 0, y: 0 }}
-                                    end={{ x: 1, y: 1 }}
-                                />
-                            )}
-                            <Ionicons name={iconName} size={26} color={focused ? '#FFF' : color} />
-                        </View>
-                    );
-                },
-            })}
-        >
-            <Tab.Screen name="Home" component={Home_Screen} />
-            <Tab.Screen name="MyMusic" component={MyMusic_Screen} />
-            <Tab.Screen name="Profile" component={Profile_Screen} />
-        </Tab.Navigator>
-
-    );
-};
 
 // Drawer Navigator
 const DrawerNavigator = () => {
@@ -211,7 +148,7 @@ const DrawerNavigator = () => {
                 drawerStyle: styles.drawer,
             }}
         >
-            <Drawer.Screen name="MainTabs" component={TabNavigator} />
+            <Drawer.Screen name="MainTabs" component={Home_Screen} />
         </Drawer.Navigator>
     );
 };
@@ -255,6 +192,12 @@ export default function App() {
                     <Stack.Screen name="Music_Screen" component={Music_Screen} />
                     <Stack.Screen name="Notification_Screen" component={Notification_Screen} />
                     <Stack.Screen name="Content" component={Content_Screens} />
+                    <Stack.Screen name="MeditationLists" component={MeditationLists} />
+                    <Stack.Screen name="MeditationDetailScreen" component={MeditationDetailScreen} />
+                    <Stack.Screen name="PlayerScreen" component={PlayerScreen} />
+                    <Stack.Screen name="Setting" component={Setting} />
+                    <Stack.Screen name="Profile_Edit_Screen" component={Profile_Edit_Screen} />
+                    <Stack.Screen name="Subscription_Screen" component={Subscription_Screen} />
                     <Stack.Screen name="Home_Screen" component={DrawerNavigator} />
 
                 </Stack.Navigator>

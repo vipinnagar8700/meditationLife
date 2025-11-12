@@ -97,8 +97,10 @@ const Header = ({ userName, notificationCount = 0 }) => {
 
     return (
         <LinearGradient
-            colors={['#FFF5F0', '#FFF7ED', '#FFFBEB']}
+            colors={['#E8624E', '#F3A469']}
             style={styles.container}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 9 }}
         >
             {/* Menu Icon */}
             <Animated.View style={{ transform: [{ scale: menuButtonScale }] }}>
@@ -116,14 +118,7 @@ const Header = ({ userName, notificationCount = 0 }) => {
                 </TouchableOpacity>
             </Animated.View>
 
-            {/* User Name */}
-            <View style={styles.centerContent}>
-                <View style={styles.userNameContainer}>
-                    <Text style={styles.userName}>{userName}</Text>
-                    <Text style={styles.userEmoji}>🧘‍♀️</Text>
-                </View>
-                <View style={styles.underline} />
-            </View>
+
 
             {/* Notification Bell */}
             <Animated.View style={{ transform: [{ scale: notificationButtonScale }] }}>
@@ -169,7 +164,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 20,
+        paddingHorizontal: 10,
         paddingVertical: 10,
         backgroundColor: '#ffffff',
 
@@ -192,8 +187,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 14,
-        backgroundColor: '#fff',
-        shadowColor: '#b86731',
+        shadowColor: '#F3A469',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.2,
         shadowRadius: 8,
@@ -217,9 +211,9 @@ const styles = StyleSheet.create({
     menuLine: {
         width: '100%',
         height: 2.5,
-        backgroundColor: '#b86731',
+        backgroundColor: '#fff',
         borderRadius: 3,
-        shadowColor: '#b86731',
+        shadowColor: '#fff',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.3,
         shadowRadius: 3,
@@ -250,11 +244,8 @@ const styles = StyleSheet.create({
     },
     userName: {
         fontSize: 22,
-        color: '#2c2c2c',
-        letterSpacing: 0.5,
-        textShadowColor: 'rgba(184, 103, 49, 0.2)',
-        textShadowOffset: { width: 0, height: 2 },
-        textShadowRadius: 4, fontFamily: "Lato-Bold"
+        color: '#fff',
+        letterSpacing: 0.5, fontFamily: "Lato-Bold"
     },
     userEmoji: {
         fontSize: 20,
@@ -263,9 +254,9 @@ const styles = StyleSheet.create({
         marginTop: 4,
         width: 40,
         height: 3,
-        backgroundColor: '#b86731',
+        backgroundColor: '#fff',
         borderRadius: 2,
-        shadowColor: '#b86731',
+        shadowColor: '#fff',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.4,
         shadowRadius: 4,
@@ -280,11 +271,11 @@ const styles = StyleSheet.create({
     bellTop: {
         width: 7,
         height: 4,
-        backgroundColor: '#b86731',
+        backgroundColor: '#fff',
         borderRadius: 4,
         alignSelf: 'center',
         marginBottom: 1,
-        shadowColor: '#b86731',
+        shadowColor: '#fff',
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.3,
         shadowRadius: 2,
@@ -293,11 +284,11 @@ const styles = StyleSheet.create({
     bellBody: {
         width: 20,
         height: 14,
-        backgroundColor: '#b86731',
+        backgroundColor: '#fff',
         borderTopLeftRadius: 12,
         borderTopRightRadius: 12,
         alignSelf: 'center',
-        shadowColor: '#b86731',
+        shadowColor: '#fff',
         shadowOffset: { width: 0, height: 3 },
         shadowOpacity: 0.4,
         shadowRadius: 4,
@@ -306,11 +297,11 @@ const styles = StyleSheet.create({
     bellBottom: {
         width: 22,
         height: 3,
-        backgroundColor: '#b86731',
+        backgroundColor: '#fff',
         borderRadius: 2,
         alignSelf: 'center',
         marginTop: 1,
-        shadowColor: '#b86731',
+        shadowColor: '#fff',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.3,
         shadowRadius: 3,

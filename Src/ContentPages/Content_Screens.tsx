@@ -143,43 +143,51 @@ For questions about these Terms, contact us at legal@example.com.`
     const pageData = contentMap[page];
 
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: '#EA580C' }} edges={['top', 'left', 'right']}>
-            <View style={styles.container}>
-                {/* Header */}
-                <LinearGradient colors={['#EA580C', '#F59E0B']} style={styles.header}>
-                    {/* <View style={styles.header}> */}
-                    <TouchableOpacity
-                        onPress={() => navigation.goBack()}
-                        style={styles.backButton}
-                    >
-                        <Ionicons name="arrow-back" size={24} color="#fff" />
-                    </TouchableOpacity>
-                    <Text style={styles.headerTitle}>{pageData?.title || page}</Text>
-                    <View style={styles.placeholder} />
-                    {/* </View> */}
-                </LinearGradient>
+        <LinearGradient colors={['#E8624E', '#F3A469']}
+            style={styles.container}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}>
+            <SafeAreaView style={{ flex: 1 }} edges={['top', 'left', 'right']}>
+                <View style={styles.container}>
+                    {/* Header */}
+                    <LinearGradient colors={['#E8624E', '#F3A469']}
+                        style={styles.header}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}>
+                        {/* <View style={styles.header}> */}
+                        <TouchableOpacity
+                            onPress={() => navigation.goBack()}
+                            style={styles.backButton}
+                        >
+                            <Ionicons name="arrow-back" size={24} color="#fff" />
+                        </TouchableOpacity>
+                        <Text style={styles.headerTitle}>{pageData?.title || page}</Text>
+                        <View style={styles.placeholder} />
+                        {/* </View> */}
+                    </LinearGradient>
 
-                {/* Content */}
-                <ScrollView
-                    style={styles.scrollView}
-                    contentContainerStyle={styles.scrollContent}
-                    showsVerticalScrollIndicator={false}
-                >
-                    {page === 'FAQ' ? (
-                        // FAQ specific layout
-                        pageData.sections.map((item, index) => (
-                            <View key={index} style={styles.faqItem}>
-                                <Text style={styles.question}>Q: {item.question}</Text>
-                                <Text style={styles.answer}>A: {item.answer}</Text>
-                            </View>
-                        ))
-                    ) : (
-                        // Other pages with regular content
-                        <Text style={styles.content}>{pageData?.content}</Text>
-                    )}
-                </ScrollView>
-            </View>
-        </SafeAreaView>
+                    {/* Content */}
+                    <ScrollView
+                        style={styles.scrollView}
+                        contentContainerStyle={styles.scrollContent}
+                        showsVerticalScrollIndicator={false}
+                    >
+                        {page === 'FAQ' ? (
+                            // FAQ specific layout
+                            pageData.sections.map((item, index) => (
+                                <View key={index} style={styles.faqItem}>
+                                    <Text style={styles.question}>Q: {item.question}</Text>
+                                    <Text style={styles.answer}>A: {item.answer}</Text>
+                                </View>
+                            ))
+                        ) : (
+                            // Other pages with regular content
+                            <Text style={styles.content}>{pageData?.content}</Text>
+                        )}
+                    </ScrollView>
+                </View>
+            </SafeAreaView>
+        </LinearGradient>
     );
 };
 

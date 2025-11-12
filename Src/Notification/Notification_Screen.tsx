@@ -19,7 +19,10 @@ const Notification_Screen = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <LinearGradient colors={['#EA580C', '#F59E0B']} style={styles.header}>
+            <LinearGradient colors={['#E8624E', '#F3A469']}
+                style={styles.header}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}>
                 <TouchableOpacity
                     onPress={() => navigation?.goBack()}
                     style={styles.backButton}
@@ -56,7 +59,7 @@ const Notification_Screen = ({ navigation }) => {
                             <Ionicons
                                 name={activeTab === 'read' ? 'notifications-outline' : 'notifications'}
                                 size={24}
-                                color={activeTab === 'read' ? '#999' : '#F59E0B'}
+                                color={activeTab === 'read' ? '#999' : '#f59f0bf4'}
                                 style={{ marginRight: 10 }}
                             />
                             <View style={{ flex: 1 }}>
@@ -99,7 +102,7 @@ const styles = StyleSheet.create({
         padding: 5,
     },
     tabButton: { flex: 1, alignItems: 'center', paddingVertical: 10, borderRadius: 10 },
-    activeTab: { backgroundColor: '#F59E0B' },
+    activeTab: { backgroundColor: '#F3A469' },
     tabText: { fontSize: 16, color: '#444', fontFamily: 'Lato-Regular' },
     activeTabText: { color: '#FFF', fontFamily: 'Lato-Bold' },
     scroll: { padding: 20 },

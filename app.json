@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "MeditationLife",
+    "name": "Meditation Life - Relax , Sleep",
     "slug": "MeditationLife",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -12,7 +12,10 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.meditationlife.com",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "UIBackgroundModes": [  
+          "audio"
+        ]
       }
     },
     "android": {
