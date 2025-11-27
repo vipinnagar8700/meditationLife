@@ -1,5 +1,4 @@
 import { useNavigation } from '@react-navigation/native'; // ✅ Import navigation hook
-import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -96,11 +95,10 @@ const Header = ({ userName, notificationCount = 0 }) => {
     };
 
     return (
-        <LinearGradient
-            colors={['#E8624E', '#F3A469']}
+        <View
+
             style={styles.container}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 9 }}
+
         >
             {/* Menu Icon */}
             <Animated.View style={{ transform: [{ scale: menuButtonScale }] }}>
@@ -153,7 +151,7 @@ const Header = ({ userName, notificationCount = 0 }) => {
                     )}
                 </TouchableOpacity>
             </Animated.View>
-        </LinearGradient>
+        </View>
     )
 }
 
@@ -166,8 +164,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingHorizontal: 10,
         paddingVertical: 10,
-        backgroundColor: '#ffffff',
-
     },
     gradientOverlay: {
         position: 'absolute',

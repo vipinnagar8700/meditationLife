@@ -13,7 +13,7 @@
       "bundleIdentifier": "com.meditationlife.com",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "UIBackgroundModes": [  
+        "UIBackgroundModes": [
           "audio"
         ]
       }

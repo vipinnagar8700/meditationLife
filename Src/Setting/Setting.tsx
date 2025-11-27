@@ -309,7 +309,7 @@ const Setting = ({ navigation }) => {
                 </TouchableOpacity>
 
                 {/* Delete Button */}
-                <TouchableOpacity style={[styles.logoutButton, { marginTop: 10 }]}>
+                <TouchableOpacity style={[styles.logoutButton, { marginTop: 5 }]}>
                     <LinearGradient
                         colors={['#E8624E', '#F3A469']}
                         style={styles.logoutGradient}
@@ -369,7 +369,7 @@ const styles = StyleSheet.create({
     },
     sectionTitle: {
         fontSize: 13,
-        fontWeight: '600',
+        fontFamily: "Heading",
         color: '#F3A469',
         marginBottom: 10,
         letterSpacing: 1,
@@ -404,12 +404,13 @@ const styles = StyleSheet.create({
     },
     settingTitle: {
         fontSize: 16,
-        fontWeight: '600',
+        fontFamily: "lato-Bold",
         color: '#fff',
         marginBottom: 2,
     },
     settingSubtitle: {
         fontSize: 13,
+        fontFamily: "lato-Regular",
         color: '#999',
     },
     divider: {
@@ -420,12 +421,12 @@ const styles = StyleSheet.create({
     versionText: {
         fontSize: 16,
         color: '#999',
-        fontWeight: '500',
+        fontFamily: "lato-Regular",
     },
     logoutButton: {
         marginHorizontal: 20,
-        marginTop: 30,
-        marginBottom: 20,
+        marginTop: 10,
+        marginBottom: 5,
         borderRadius: 16,
         overflow: 'hidden',
     },
@@ -438,15 +439,15 @@ const styles = StyleSheet.create({
     },
     logoutText: {
         fontSize: 18,
-        fontWeight: '700',
+        fontFamily: "Heading",
         color: '#fff',
     },
     footer: {
         alignItems: 'center',
-        paddingVertical: 30,
+        paddingBottom: 30,
     },
     footerText: {
         fontSize: 14,
-        color: '#666',
+        color: '#666', fontFamily: "Heading",
     },
 })
